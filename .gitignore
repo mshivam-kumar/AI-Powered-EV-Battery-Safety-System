@@ -1,0 +1,11 @@
+/data
+/models
+/logs
+/results
+/notebooks
+/docs
+/tests
+/scripts
+/configs
+/utils
+/envs
