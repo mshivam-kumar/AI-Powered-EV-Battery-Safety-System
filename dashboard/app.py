@@ -36,6 +36,16 @@ if "alerts" not in st.session_state:
     st.session_state.alerts = []
 if "system_running" not in st.session_state:
     st.session_state.system_running = False
+if "accumulated_alerts" not in st.session_state:
+    st.session_state.accumulated_alerts = {
+        "critical": 0,
+        "warning": 0
+    }
+if "alert_history" not in st.session_state:
+    st.session_state.alert_history = {
+        "critical": [],
+        "warning": []
+    }
 
 class BatteryManagementSystem:
     def __init__(self, models_dir="models"):
@@ -435,14 +445,104 @@ class BatteryManagementSystem:
             return 'maintain', 0.5
     
     def calculate_bhi(self, telemetry):
-        """Calculate Battery Health Index"""
-        # Simplified BHI calculation
+        """Calculate Enhanced Battery Health Index for Indian Conditions"""
+        # Basic health factors (existing)
         soc_factor = 1.0 - abs(telemetry['soc'] - 0.5) * 2  # Optimal around 50%
         temp_factor = max(0, 1.0 - abs(telemetry['temperature'] - 25) / 50)  # Optimal around 25°C
         voltage_factor = max(0, 1.0 - abs(telemetry['voltage'] - 3.7) / 2)  # Optimal around 3.7V
         
-        bhi = (soc_factor + temp_factor + voltage_factor) / 3 * 100
+        # India-specific environmental factors
+        humidity = telemetry.get('humidity', 0.5)
+        ambient_temp = telemetry.get('ambient_temp', 25)
+        location = telemetry.get('location', 'inland')
+        
+        # Environmental health factors
+        humidity_factor = self.calculate_humidity_factor(humidity)
+        heat_stress_factor = self.calculate_heat_stress_factor(ambient_temp)
+        monsoon_factor = self.calculate_monsoon_factor(ambient_temp)
+        salinity_factor = self.calculate_salinity_factor(location)
+        
+        # Basic health (70% weight)
+        basic_health = (soc_factor + temp_factor + voltage_factor) / 3
+        
+        # Environmental health (30% weight)
+        environmental_health = (humidity_factor + heat_stress_factor + monsoon_factor + salinity_factor) / 4
+        
+        # Combined BHI with India-specific weighting
+        bhi = (0.7 * basic_health + 0.3 * environmental_health) * 100
         return max(0, min(100, bhi))
+    
+    def calculate_humidity_factor(self, humidity):
+        """Factor for humidity impact on battery health (monsoon conditions)"""
+        if humidity < 0.3:  # Dry conditions
+            return 1.0
+        elif humidity < 0.7:  # Normal conditions
+            return 0.9
+        elif humidity < 0.9:  # High humidity
+            return 0.7
+        else:  # Extreme humidity (monsoon)
+            return 0.5
+    
+    def calculate_heat_stress_factor(self, ambient_temp):
+        """Factor for extreme heat conditions in India"""
+        if ambient_temp > 45:  # Extreme heat (desert conditions)
+            return 0.6
+        elif ambient_temp > 40:  # High heat (summer)
+            return 0.8
+        elif ambient_temp > 35:  # Moderate heat
+            return 0.9
+        else:
+            return 1.0  # Normal conditions
+    
+    def calculate_monsoon_factor(self, ambient_temp):
+        """Factor for monsoon season impact"""
+        if 20 <= ambient_temp <= 30:  # Monsoon temperature range
+            return 0.8  # Reduced health during monsoon
+        else:
+            return 1.0  # Normal health
+    
+    def calculate_salinity_factor(self, location):
+        """Factor for coastal salinity impact"""
+        coastal_areas = ['mumbai', 'chennai', 'kolkata', 'goa', 'kerala', 'coastal']
+        if location.lower() in coastal_areas:
+            return 0.85  # Reduced health in coastal areas
+        else:
+            return 1.0  # Normal health inland
+    
+    def get_bhi_recommendations(self, bhi, telemetry):
+        """Generate BHI-based charging recommendations for Indian conditions"""
+        humidity = telemetry.get('humidity', 0.5)
+        ambient_temp = telemetry.get('ambient_temp', 25)
+        location = telemetry.get('location', 'inland')
+        
+        recommendations = []
+        
+        # BHI-based charging strategy
+        if bhi >= 90:
+            recommendations.append("🟢 Excellent health - Fast charging recommended")
+        elif bhi >= 75:
+            recommendations.append("🟡 Good health - Normal charging OK")
+        elif bhi >= 60:
+            recommendations.append("🟠 Moderate health - Slow charging recommended")
+        elif bhi >= 40:
+            recommendations.append("🔴 Poor health - Trickle charge only")
+        else:
+            recommendations.append("🚨 Critical health - Stop charging, check battery")
+        
+        # India-specific environmental recommendations
+        if humidity > 0.8:
+            recommendations.append("🌧️ High humidity - Monitor for moisture ingress")
+        
+        if ambient_temp > 40:
+            recommendations.append("🌡️ Extreme heat - Use thermal management")
+        
+        if location.lower() in ['mumbai', 'chennai', 'kolkata', 'goa', 'kerala']:
+            recommendations.append("🏖️ Coastal area - Check for salt corrosion")
+        
+        if 20 <= ambient_temp <= 30 and humidity > 0.7:
+            recommendations.append("🌦️ Monsoon conditions - Extra moisture protection needed")
+        
+        return recommendations
     
     def get_action_reason(self, telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status):
         """Generate explanation for RL agent action"""
@@ -525,17 +625,20 @@ class BatteryManagementSystem:
             else:
                 untrained_states = []
             
-            # Check if this exact state already exists (avoid duplicates)
-            state_signature = str(debug_info.get('state_bins', []))
-            existing_signatures = [str(s.get('state_bins', [])) for s in untrained_states if isinstance(s, dict)]
+            # OPTIMIZED: Use set for O(1) lookup instead of O(n) list search
+            existing_state_indices = set(s.get('state_index', '') for s in untrained_states if isinstance(s, dict))
+            current_state_index = untrained_entry.get('state_index', '')
             
-            if state_signature not in existing_signatures:
+            if current_state_index not in existing_state_indices:
                 untrained_states.append(untrained_entry)
                 
                 # Write back to file with proper error handling
                 with open(untrained_file, 'w') as f:
                     json.dump(untrained_states, f, indent=2, ensure_ascii=False)
                     f.flush()  # Ensure data is written
+            else:
+                # State already exists, skip logging (no file I/O)
+                pass
                     
         except Exception as e:
             # Fail silently to not interrupt dashboard
@@ -809,7 +912,26 @@ def main():
         ambient_temp = st.sidebar.slider("Ambient Temp (°C)", 0, 50, 20, 1,
                                         help="Environmental temperature around battery")
         humidity = st.sidebar.slider("Humidity (%)", 0, 100, 50, 5, 
-                                    help="Relative humidity (affects thermal management)") / 100
+                                    help="Relative humidity (🌧️ >80% = monsoon conditions)") / 100
+        
+        st.sidebar.write("**🇮🇳 India-Specific Factors:**")
+        location = st.sidebar.selectbox(
+            "Location Type",
+            ["inland", "mumbai", "chennai", "kolkata", "goa", "kerala", "coastal"],
+            help="Select location for salinity factor (coastal areas have salt corrosion risk)"
+        )
+        
+        season = st.sidebar.selectbox(
+            "Season",
+            ["summer", "monsoon", "winter", "spring"],
+            help="Seasonal impact on battery health (monsoon = high humidity)"
+        )
+        
+        charging_station = st.sidebar.selectbox(
+            "Charging Station",
+            ["home", "public", "fast_charging", "workplace"],
+            help="Charging infrastructure type affects charging patterns"
+        )
         
         st.sidebar.write("**⚡ Charging Mode:**")
         charge_mode = st.sidebar.selectbox("Charge Mode", ['fast', 'slow', 'pause'],
@@ -832,8 +954,11 @@ def main():
                 'soc': soc,
                 'ambient_temp': ambient_temp,
                 'humidity': humidity,
+                'location': location,
+                'season': season,
+                'charging_station': charging_station,
                 'charge_mode': charge_mode,
-                'scenario': 'Manual Input',
+                'scenario': 'Manual Input - India Enhanced',
                 'time_since_start': len(st.session_state.telemetry_data) * 5
             }
             st.session_state.telemetry_data.append(telemetry)
@@ -873,7 +998,11 @@ def main():
         # Store raw telemetry for untrained state logging
         bms.current_raw_telemetry = current_telemetry
         rl_action, rl_confidence = bms.get_rl_action(standardized_telemetry, debug_rl)
+        # Calculate Enhanced BHI with India-specific factors
         bhi = bms.calculate_bhi(current_telemetry)
+        
+        # Get BHI recommendations
+        bhi_recommendations = bms.get_bhi_recommendations(bhi, current_telemetry)
         
         # Get ensemble prediction
         ensemble_prob = anomaly_predictions.get('ensemble', {}).get('probability', 0.5)
@@ -905,10 +1034,10 @@ def main():
         
         with col2:
             st.metric(
-                "🔋 Battery Health",
+                "🔋 Battery Health Index",
                 f"{bhi:.1f}%",
                 delta=f"{bhi-75:.1f}%" if bhi < 75 else f"+{bhi-75:.1f}%",
-                help="Battery Health Index"
+                help="Enhanced BHI for Indian conditions (SoC, Temperature, Voltage, Humidity, Heat, Monsoon, Salinity)"
             )
         
         with col3:
@@ -936,6 +1065,42 @@ def main():
             
             # Update previous confidence
             st.session_state.prev_confidence = rl_confidence
+        
+        # Display Enhanced BHI Recommendations
+        st.subheader("🔋 Battery Health Index (BHI) - India Enhanced")
+        
+        # BHI Status and Recommendations
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.write(f"**BHI Score**: {bhi:.1f}%")
+            if bhi >= 90:
+                st.success("🟢 Excellent Battery Health")
+            elif bhi >= 75:
+                st.info("🟡 Good Battery Health")
+            elif bhi >= 60:
+                st.warning("🟠 Moderate Battery Health")
+            elif bhi >= 40:
+                st.error("🔴 Poor Battery Health")
+            else:
+                st.error("🚨 Critical Battery Health")
+        
+        with col2:
+            # Environmental factors display
+            humidity = current_telemetry.get('humidity', 0.5)
+            ambient_temp = current_telemetry.get('ambient_temp', 25)
+            location = current_telemetry.get('location', 'inland')
+            
+            st.write("**Environmental Factors:**")
+            st.write(f"🌡️ Ambient: {ambient_temp:.1f}°C")
+            st.write(f"💧 Humidity: {humidity*100:.1f}%")
+            st.write(f"📍 Location: {location.title()}")
+        
+        # BHI Recommendations
+        if bhi_recommendations:
+            st.subheader("📋 BHI-Based Recommendations")
+            for i, recommendation in enumerate(bhi_recommendations, 1):
+                st.write(f"{i}. {recommendation}")
         
         with col5:
             st.metric(
@@ -1113,15 +1278,10 @@ def main():
         st.subheader("🚨 System Status")
         
         # Initialize alert counters in session state
-        if "alert_history" not in st.session_state:
-            st.session_state.alert_history = {"critical": [], "warning": []}
+        # alert_history is now initialized in main session state
         
         # Initialize accumulated alert counters
-        if "accumulated_alerts" not in st.session_state:
-            st.session_state.accumulated_alerts = {
-                "critical": 0,
-                "warning": 0
-            }
+        # accumulated_alerts is now initialized in main session state
         
         # Get accumulated counts
         accumulated_critical = st.session_state.accumulated_alerts["critical"]

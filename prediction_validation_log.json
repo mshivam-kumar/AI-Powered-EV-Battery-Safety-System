@@ -29014,5 +29014,98 @@
       },
       "debug_message": "Using default Q-values (untrained state)"
     }
+  },
+  {
+    "timestamp": "2025-10-03T04:21:31.461631",
+    "input_telemetry": {
+      "voltage": 3.7,
+      "current": 0.0,
+      "temperature": 25,
+      "soc": 0.5,
+      "ambient_temp": 20,
+      "humidity": 0.5,
+      "charge_mode": "fast",
+      "scenario": "Manual Input"
+    },
+    "standardized_features": {
+      "voltage": 0.0,
+      "current": 0.0,
+      "temperature": 0.0,
+      "soc": 0.0,
+      "ambient_temp": 0.0,
+      "humidity": 0.0,
+      "charge_mode": -1.25,
+      "power": -2.3125,
+      "c_rate": -2.0,
+      "temp_diff": 0.0,
+      "voltage_soc_ratio": 0.0,
+      "thermal_stress": -1.6666666666666667,
+      "temp_gradient": 0.0,
+      "voltage_gradient": 0.0,
+      "soc_rate": 0.0,
+      "env_stress": -0.4999999999999999
+    },
+    "model_predictions": {
+      "random_forest": {
+        "prediction": 0,
+        "probability": 0.08646509899459714
+      },
+      "mlp_medium": {
+        "prediction": 0,
+        "probability": 1.048481059469796e-31
+      },
+      "safety_rules": {
+        "prediction": 0,
+        "probability": 0.0
+      },
+      "ensemble": {
+        "prediction": 0,
+        "probability": 0.03458603959783886
+      }
+    },
+    "rl_agent": {
+      "action": "maintain",
+      "confidence": 0.86,
+      "reason": "Normal conditions - Optimal action: maintain (confidence: 86%)"
+    },
+    "safety_assessment": "SAFE",
+    "ensemble_anomaly_probability": 0.03458603959783886,
+    "alerts": {
+      "critical_count": 0,
+      "warning_count": 0,
+      "critical_conditions": {
+        "high_temperature": false,
+        "low_soc": false,
+        "low_voltage": false,
+        "risk_status": false,
+        "high_anomaly_prob": false
+      }
+    },
+    "rl_debug": {
+      "is_untrained_state": true,
+      "state_bins": [
+        0,
+        0,
+        2,
+        2,
+        2,
+        0
+      ],
+      "state_index": "(0,0,2,2,2,0)",
+      "q_sum": 0.0,
+      "q_values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "standardized_values": {
+        "temperature": 0.0,
+        "soc": 0.0,
+        "voltage": 0.0
+      },
+      "debug_message": "Using default Q-values (untrained state)"
+    }
   }
 ]
