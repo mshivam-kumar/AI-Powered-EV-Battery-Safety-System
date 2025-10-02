@@ -20,8 +20,9 @@ class PipelineRunner:
         self.pipeline_steps = [
             ("01_data_preparation.py", "Data Preparation"),
             ("02_preprocessing.py", "Preprocessing & Feature Engineering"),
-            ("03_synthetic_labels.py", "Synthetic Label Generation"),
-            ("04_training.py", "Model Training"),
+            ("03_synthetic_labels_complete.py", "Complete Dataset Label Generation (All 5.3M samples)"),
+            ("train_rf_complete.py", "Random Forest Training (Parallel)"),
+            ("train_mlp_complete.py", "MLP Training (Parallel)"),
             ("05_testing.py", "Model Testing & Validation"),
             ("06_inference.py", "Inference & Deployment Demo")
         ]
