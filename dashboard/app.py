@@ -46,6 +46,10 @@ if "alert_history" not in st.session_state:
         "critical": [],
         "warning": []
     }
+if "climate_zone" not in st.session_state:
+    st.session_state.climate_zone = "Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)"
+if "charge_mode" not in st.session_state:
+    st.session_state.charge_mode = "slow"
 
 class BatteryManagementSystem:
     def __init__(self, models_dir="models"):
@@ -455,6 +459,7 @@ class BatteryManagementSystem:
         humidity = telemetry.get('humidity', 0.5)
         ambient_temp = telemetry.get('ambient_temp', 25)
         location = telemetry.get('location', 'inland')
+        charge_mode = telemetry.get('charge_mode', 'slow')
         
         # Environmental health factors
         humidity_factor = self.calculate_humidity_factor(humidity)
@@ -462,14 +467,20 @@ class BatteryManagementSystem:
         monsoon_factor = self.calculate_monsoon_factor(ambient_temp)
         salinity_factor = self.calculate_salinity_factor(location)
         
+        # Charging mode impact (simplified)
+        charging_factor = self.calculate_charging_mode_factor(charge_mode)
+        
         # Basic health (70% weight)
         basic_health = (soc_factor + temp_factor + voltage_factor) / 3
         
-        # Environmental health (30% weight)
+        # Environmental health (25% weight)
         environmental_health = (humidity_factor + heat_stress_factor + monsoon_factor + salinity_factor) / 4
         
-        # Combined BHI with India-specific weighting
-        bhi = (0.7 * basic_health + 0.3 * environmental_health) * 100
+        # Charging health (5% weight - simplified)
+        charging_health = charging_factor
+        
+        # Combined BHI with simplified weighting
+        bhi = (0.7 * basic_health + 0.25 * environmental_health + 0.05 * charging_health) * 100
         return max(0, min(100, bhi))
     
     def calculate_humidity_factor(self, humidity):
@@ -509,6 +520,17 @@ class BatteryManagementSystem:
         else:
             return 1.0  # Normal health inland
     
+    def calculate_charging_mode_factor(self, charge_mode):
+        """Simplified factor for charging mode impact on battery health"""
+        if charge_mode == "slow":
+            return 1.0  # Optimal slow charging
+        elif charge_mode == "fast":
+            return 0.90  # Slightly reduced due to fast charging stress
+        elif charge_mode == "pause":
+            return 0.95  # Slightly reduced due to no charging
+        else:
+            return 1.0  # Default to optimal
+    
     def get_bhi_recommendations(self, bhi, telemetry):
         """Generate BHI-based charging recommendations for Indian conditions"""
         humidity = telemetry.get('humidity', 0.5)
@@ -543,6 +565,88 @@ class BatteryManagementSystem:
             recommendations.append("🌦️ Monsoon conditions - Extra moisture protection needed")
         
         return recommendations
+    
+    def get_adaptive_safety_thresholds(self, base_thresholds, ambient_temp, humidity, location, season, charge_mode=None):
+        """Calculate adaptive safety thresholds based on India climate zones and charging mode"""
+        adaptations = []
+        
+        # Base thresholds
+        high_temp = base_thresholds.get('high_temp_celsius', 41.0)
+        low_soc = base_thresholds.get('low_soc_percent', 20)
+        high_soc = base_thresholds.get('high_soc_percent', 80)
+        
+        # Climate zone-specific adaptations
+        if location == "tropical_monsoon":
+            high_temp -= 2.0  # Lower threshold for monsoon conditions
+            adaptations.append("🌧️ Tropical Monsoon: Lower temp threshold (-2°C)")
+            if humidity > 0.8:
+                high_temp -= 1.0
+                adaptations.append("💧 High humidity: Additional temp reduction (-1°C)")
+        
+        elif location == "hot_desert":
+            high_temp -= 3.0  # Much lower threshold for desert heat
+            adaptations.append("🔥 Hot Desert: Lower temp threshold (-3°C)")
+            if ambient_temp > 45:
+                low_soc += 5
+                high_soc -= 5
+                adaptations.append("🌡️ Extreme heat: Adjusted SoC thresholds (±5%)")
+        
+        elif location == "tropical_savanna":
+            high_temp -= 1.0  # Moderate reduction for urban heat
+            adaptations.append("🏙️ Tropical Savanna: Lower temp threshold (-1°C)")
+            if ambient_temp > 40:
+                high_temp -= 1.0
+                adaptations.append("🌡️ Urban heat island: Additional reduction (-1°C)")
+        
+        elif location == "subtropical_highland":
+            if ambient_temp < 15:  # Cold conditions
+                high_temp += 2.0
+                adaptations.append("❄️ Highland cold: Higher temp threshold (+2°C)")
+            else:
+                high_temp -= 0.5  # Slight reduction for altitude effects
+                adaptations.append("⛰️ Altitude effects: Slight temp reduction (-0.5°C)")
+        
+        elif location == "tropical_wet":
+            high_temp -= 2.5  # Lower threshold for high humidity
+            adaptations.append("🌧️ Tropical Wet: Lower temp threshold (-2.5°C)")
+            if humidity > 0.8:
+                low_soc += 3
+                adaptations.append("💧 High humidity: Higher low SoC threshold (+3%)")
+        
+        # Season-specific adaptations
+        if season.lower() == 'monsoon':
+            high_temp -= 1.0
+            adaptations.append("🌦️ Monsoon season: Lower temp threshold (-1°C)")
+        elif season.lower() == 'summer':
+            high_temp -= 0.5
+            adaptations.append("☀️ Summer season: Lower temp threshold (-0.5°C)")
+        elif season.lower() == 'winter':
+            high_temp += 1.0
+            adaptations.append("❄️ Winter season: Higher temp threshold (+1°C)")
+        
+        # Additional humidity adaptations
+        if humidity > 0.9:  # Very high humidity
+            high_temp -= 1.0
+            adaptations.append("💧 Very high humidity: Lower temp threshold (-1°C)")
+        
+        # Charging mode-specific adaptations
+        if charge_mode:
+            if charge_mode == "fast":
+                high_temp -= 1.5  # More sensitive during fast charging
+                adaptations.append("⚡ Fast mode: Lower temp threshold (-1.5°C)")
+            elif charge_mode == "slow":
+                high_temp -= 0.5  # Slightly more sensitive during slow charging
+                adaptations.append("🐌 Slow mode: Lower temp threshold (-0.5°C)")
+            elif charge_mode == "pause":
+                high_temp += 1.0  # Less sensitive when not charging
+                adaptations.append("⏸️ Pause mode: Higher temp threshold (+1°C)")
+        
+        return {
+            'high_temp': max(35.0, high_temp),  # Minimum 35°C threshold
+            'low_soc': max(10, low_soc),  # Minimum 10% low SoC
+            'high_soc': min(95, high_soc),  # Maximum 95% high SoC
+            'adaptations': adaptations
+        }
     
     def get_action_reason(self, telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status):
         """Generate explanation for RL agent action"""
@@ -644,8 +748,8 @@ class BatteryManagementSystem:
             # Fail silently to not interrupt dashboard
             pass
 
-    def log_prediction_data(self, telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason=None, critical_count=0, warning_count=0):
-        """Log prediction data for validation and analysis"""
+    def log_prediction_data(self, telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason=None, critical_count=0, warning_count=0, adaptive_thresholds=None, bhi=None):
+        """Log prediction data for validation and analysis with climate context"""
         import json
         from datetime import datetime
         
@@ -664,6 +768,9 @@ class BatteryManagementSystem:
                 'ambient_temp': telemetry['ambient_temp'],
                 'humidity': telemetry['humidity'],
                 'charge_mode': telemetry['charge_mode'],
+                'climate_zone': telemetry.get('climate_zone', 'unknown'),  # Enhanced logging
+                'location': telemetry.get('location', 'unknown'),
+                'season': telemetry.get('season', 'unknown'),
                 'scenario': telemetry.get('scenario', 'Unknown')
             },
             'standardized_features': {
@@ -692,6 +799,13 @@ class BatteryManagementSystem:
                     'risk_status': bool(safety_status == "RISK"),
                     'high_anomaly_prob': bool(anomaly_predictions.get('ensemble', {}).get('probability', 0) > 0.8)
                 }
+            },
+            'climate_context': {
+                'climate_zone': telemetry.get('climate_zone', 'unknown'),
+                'charge_mode': telemetry.get('charge_mode', 'unknown'),
+                'adaptive_thresholds': adaptive_thresholds,
+                'enhanced_bhi': bhi,
+                'climate_adaptations': adaptive_thresholds.get('adaptations', []) if adaptive_thresholds else []
             }
         }
         
@@ -791,6 +905,24 @@ def generate_synthetic_telemetry():
     weights = [s["weight"] for s in scenarios]
     scenario = np.random.choice(scenarios, p=weights)
     
+    # Get climate context from session state
+    climate_zone = st.session_state.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+    charge_mode = st.session_state.get('charge_mode', 'slow')
+    
+    # Extract location from climate zone
+    if "Tropical Monsoon" in climate_zone:
+        location = "tropical_monsoon"
+    elif "Hot Desert" in climate_zone:
+        location = "hot_desert"
+    elif "Tropical Savanna" in climate_zone:
+        location = "tropical_savanna"
+    elif "Subtropical Highland" in climate_zone:
+        location = "subtropical_highland"
+    elif "Tropical Wet" in climate_zone:
+        location = "tropical_wet"
+    else:
+        location = "inland"
+    
     telemetry = {
         'timestamp': base_time,
         'voltage': np.random.uniform(*scenario['voltage_range']),
@@ -799,7 +931,10 @@ def generate_synthetic_telemetry():
         'soc': np.random.uniform(*scenario['soc_range']),
         'ambient_temp': np.random.uniform(15, 35),
         'humidity': np.random.uniform(0.3, 0.8),
-        'charge_mode': np.random.choice(['fast', 'slow', 'pause']),
+        'charge_mode': charge_mode,  # Use stored charge mode
+        'climate_zone': climate_zone,  # Use stored climate zone
+        'location': location,  # Use extracted location
+        'season': np.random.choice(['summer', 'monsoon', 'winter', 'spring']),
         'scenario': scenario['name'],
         'time_since_start': len(st.session_state.telemetry_data) * 5  # 5 seconds per reading
     }
@@ -824,9 +959,41 @@ def main():
     
     # Test critical conditions button
     if st.sidebar.button("🧪 Test Critical Conditions"):
+        # Generate critical test telemetry
+        critical_telemetry = {
+            'timestamp': datetime.now(),
+            'voltage': 3.0,  # Critical low voltage
+            'current': 60,   # High current
+            'temperature': 45,  # Critical high temperature
+            'soc': 0.05,    # Critical low SoC
+            'ambient_temp': 40,  # High ambient temperature
+            'humidity': 0.9,    # High humidity
+            'charge_mode': st.session_state.get('charge_mode', 'fast'),
+            'climate_zone': st.session_state.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)'),
+            'location': 'tropical_monsoon',
+            'season': 'monsoon',
+            'scenario': 'Test Critical Conditions - India Enhanced',
+            'time_since_start': len(st.session_state.telemetry_data) * 5
+        }
+        
+        # Add to telemetry data
+        st.session_state.telemetry_data.append(critical_telemetry)
+        
+        # Update alerts
         st.session_state.accumulated_alerts["critical"] += 1
         st.session_state.alert_history["critical"].append(f"{datetime.now().strftime('%H:%M:%S')}: Test critical alert")
-        st.sidebar.success("Added test critical alert!")
+        
+        # Show immediate feedback
+        st.sidebar.success("🧪 Critical test telemetry generated!")
+        st.sidebar.info("📊 Check the main dashboard for prediction results")
+        st.sidebar.write("**Test Data:**")
+        st.sidebar.write(f"• Temperature: {critical_telemetry['temperature']}°C")
+        st.sidebar.write(f"• Voltage: {critical_telemetry['voltage']}V")
+        st.sidebar.write(f"• SoC: {critical_telemetry['soc']*100:.1f}%")
+        st.sidebar.write(f"• Climate: {critical_telemetry['climate_zone']}")
+        
+        # Force page refresh to show results
+        st.rerun()
     
     # Show logging status with file info
     log_file = Path("prediction_validation_log.json")
@@ -892,6 +1059,19 @@ def main():
     # System status
     if st.sidebar.button("🚀 Start System" if not st.session_state.system_running else "⏹️ Stop System"):
         st.session_state.system_running = not st.session_state.system_running
+        
+        if st.session_state.system_running:
+            # Show immediate feedback when starting
+            st.sidebar.success("🚀 System started! Generating telemetry...")
+            st.sidebar.info("📊 Climate Zone: " + st.session_state.get('climate_zone', 'Tropical Monsoon'))
+            st.sidebar.info("⚡ Charge Mode: " + st.session_state.get('charge_mode', 'slow'))
+            st.sidebar.write("**Next Steps:**")
+            st.sidebar.write("• Watch the main dashboard for real-time data")
+            st.sidebar.write("• Telemetry will be generated every 2 seconds")
+            st.sidebar.write("• AI models will analyze each reading")
+            st.sidebar.write("• RL agent will provide recommendations")
+        else:
+            st.sidebar.info("⏹️ System stopped")
     
     # Manual telemetry input
     st.sidebar.subheader("📊 Manual Input")
@@ -914,12 +1094,35 @@ def main():
         humidity = st.sidebar.slider("Humidity (%)", 0, 100, 50, 5, 
                                     help="Relative humidity (🌧️ >80% = monsoon conditions)") / 100
         
-        st.sidebar.write("**🇮🇳 India-Specific Factors:**")
-        location = st.sidebar.selectbox(
-            "Location Type",
-            ["inland", "mumbai", "chennai", "kolkata", "goa", "kerala", "coastal"],
-            help="Select location for salinity factor (coastal areas have salt corrosion risk)"
+        st.sidebar.write("**🇮🇳 India Climate Zone:**")
+        climate_zone = st.sidebar.selectbox(
+            "Climate Zone",
+            [
+                "Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)",
+                "Hot Desert (Rajasthan, Gujarat, Punjab)", 
+                "Tropical Savanna (Delhi, Bangalore, Hyderabad)",
+                "Subtropical Highland (Shimla, Kashmir, Himachal)",
+                "Tropical Wet (Kerala, Assam, Meghalaya)"
+            ],
+            help="Select climate zone for adaptive safety thresholds"
         )
+        
+        # Store climate zone in session state for system mode
+        st.session_state.climate_zone = climate_zone
+        
+        # Extract zone name for processing
+        if "Tropical Monsoon" in climate_zone:
+            location = "tropical_monsoon"
+        elif "Hot Desert" in climate_zone:
+            location = "hot_desert"
+        elif "Tropical Savanna" in climate_zone:
+            location = "tropical_savanna"
+        elif "Subtropical Highland" in climate_zone:
+            location = "subtropical_highland"
+        elif "Tropical Wet" in climate_zone:
+            location = "tropical_wet"
+        else:
+            location = "inland"
         
         season = st.sidebar.selectbox(
             "Season",
@@ -927,23 +1130,40 @@ def main():
             help="Seasonal impact on battery health (monsoon = high humidity)"
         )
         
-        charging_station = st.sidebar.selectbox(
-            "Charging Station",
-            ["home", "public", "fast_charging", "workplace"],
-            help="Charging infrastructure type affects charging patterns"
-        )
+        # Removed charging station input to simplify the interface
+        # Climate zone and charging mode are sufficient for safety assessment
         
         st.sidebar.write("**⚡ Charging Mode:**")
         charge_mode = st.sidebar.selectbox("Charge Mode", ['fast', 'slow', 'pause'],
                                           help="fast = Fast charging, slow = Slow charging, pause = No charging")
         
-        # Show what the RL agent considers dangerous
+        # Store charge mode in session state for system mode
+        st.session_state.charge_mode = charge_mode
+        
+        # Show adaptive safety thresholds based on India-specific conditions
         if hasattr(bms, 'transformer'):
-            thresholds = bms.transformer.get_rl_thresholds_in_real_world()
-            st.sidebar.write("**🚨 AI Safety Thresholds:**")
-            st.sidebar.write(f"• High Temp: >{thresholds.get('high_temp_celsius', 41):.1f}°C")
-            st.sidebar.write(f"• Low SoC: <{thresholds.get('low_soc_percent', 20):.0f}%")
-            st.sidebar.write(f"• High SoC: >{thresholds.get('high_soc_percent', 80):.0f}%")
+            base_thresholds = bms.transformer.get_rl_thresholds_in_real_world()
+            
+            # Calculate India-specific adaptive thresholds
+            adaptive_thresholds = bms.get_adaptive_safety_thresholds(
+                base_thresholds, 
+                ambient_temp, 
+                humidity, 
+                location, 
+                season,
+                charge_mode
+            )
+            
+            st.sidebar.write("**🚨 AI Safety Thresholds (India Adaptive):**")
+            st.sidebar.write(f"• High Temp: >{adaptive_thresholds['high_temp']:.1f}°C")
+            st.sidebar.write(f"• Low SoC: <{adaptive_thresholds['low_soc']:.0f}%")
+            st.sidebar.write(f"• High SoC: >{adaptive_thresholds['high_soc']:.0f}%")
+            
+            # Show adaptation factors
+            if adaptive_thresholds['adaptations']:
+                st.sidebar.write("**🇮🇳 India Adaptations:**")
+                for adaptation in adaptive_thresholds['adaptations']:
+                    st.sidebar.write(f"• {adaptation}")
         
         if st.sidebar.button("📤 Submit Telemetry"):
             telemetry = {
@@ -956,8 +1176,8 @@ def main():
                 'humidity': humidity,
                 'location': location,
                 'season': season,
-                'charging_station': charging_station,
                 'charge_mode': charge_mode,
+                'climate_zone': climate_zone,  # Enhanced logging
                 'scenario': 'Manual Input - India Enhanced',
                 'time_since_start': len(st.session_state.telemetry_data) * 5
             }
@@ -1332,7 +1552,22 @@ def main():
             current_warning += 1
         
         # Log prediction data for validation (after critical/warning counts are calculated)
-        bms.log_prediction_data(current_telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason, current_critical, current_warning)
+        # Calculate adaptive thresholds and BHI for enhanced logging
+        adaptive_thresholds = None
+        bhi = None
+        if hasattr(bms, 'transformer'):
+            base_thresholds = bms.transformer.get_rl_thresholds_in_real_world()
+            adaptive_thresholds = bms.get_adaptive_safety_thresholds(
+                base_thresholds,
+                current_telemetry.get('ambient_temp', 25),
+                current_telemetry.get('humidity', 0.5),
+                current_telemetry.get('location', 'inland'),
+                current_telemetry.get('season', 'spring'),
+                current_telemetry.get('charge_mode', 'slow')
+            )
+            bhi = bms.calculate_bhi(current_telemetry)
+        
+        bms.log_prediction_data(current_telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason, current_critical, current_warning, adaptive_thresholds, bhi)
         
         # Accumulate alerts when conditions are met
         if current_critical > 0:
