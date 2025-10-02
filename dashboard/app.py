@@ -316,7 +316,11 @@ class BatteryManagementSystem:
                     
                     # Log untrained states separately for RL improvement
                     if is_untrained:
-                        self.log_untrained_rl_state(debug_info, telemetry)
+                        # Store reference to original telemetry for logging
+                        if hasattr(self, 'current_raw_telemetry'):
+                            self.log_untrained_rl_state(debug_info, self.current_raw_telemetry)
+                        else:
+                            self.log_untrained_rl_state(debug_info, telemetry)
                     
                     # Check if all Q-values are zero (untrained state)
                     if np.allclose(q_values, 0.0):
@@ -327,22 +331,22 @@ class BatteryManagementSystem:
                         
                         # SAFETY-FIRST DEFAULT Q-VALUES (matching our training approach)
                         if is_anomaly:
-                            # During anomaly: ALWAYS prefer pause/discharge
+                            # During HIGH anomaly (>70%): ALWAYS prefer pause/discharge
                             q_values = np.array([0.1, 0.2, 0.9, 0.7, 0.1])  # Strong preference for pause
                         elif temp_std > 1.5:  # High temperature (>90th percentile)
-                            q_values = np.array([0.1, 0.4, 0.8, 0.6, 0.2])  # Prefer pause, allow slow charge
+                            q_values = np.array([0.1, 0.6, 0.8, 0.5, 0.3])  # Prefer pause, allow slow charge
                         elif temp_std > 0.5:  # Moderate temperature
-                            q_values = np.array([0.3, 0.7, 0.5, 0.4, 0.6])  # Prefer slow charge/maintain
+                            q_values = np.array([0.4, 0.8, 0.3, 0.3, 0.7])  # Prefer slow charge/maintain
                         elif soc_std < -2.0:  # Very low SoC (<20%)
-                            q_values = np.array([0.6, 0.8, 0.3, 0.1, 0.4])  # Prefer charging
+                            q_values = np.array([0.7, 0.9, 0.2, 0.1, 0.4])  # Prefer fast/slow charging
                         elif soc_std < -0.5:  # Low SoC
-                            q_values = np.array([0.5, 0.7, 0.4, 0.2, 0.5])  # Prefer slow charge
+                            q_values = np.array([0.6, 0.9, 0.2, 0.2, 0.6])  # Prefer slow charge
                         elif soc_std > 1.5:  # High SoC (>80%)
-                            q_values = np.array([0.2, 0.3, 0.4, 0.8, 0.6])  # Prefer discharge/maintain
+                            q_values = np.array([0.1, 0.2, 0.4, 0.9, 0.7])  # Prefer discharge/maintain
                         else:  # Normal conditions
-                            q_values = np.array([0.4, 0.6, 0.5, 0.4, 0.7])  # Balanced, prefer maintain
+                            q_values = np.array([0.5, 0.8, 0.3, 0.3, 0.9])  # Balanced, prefer maintain/slow charge
                 else:
-                    q_values = np.array([0.3, 0.4, 0.5, 0.2, 0.6])  # Balanced default
+                    q_values = np.array([0.4, 0.7, 0.3, 0.3, 0.9])  # Balanced default - prefer maintain/slow charge
             else:
                 # Dictionary format
                 if state in q_table:
@@ -354,15 +358,15 @@ class BatteryManagementSystem:
                         soc_std = telemetry['soc']
                         
                         if temp_std > 1.0:  # High temp - prefer pause/slow
-                            q_values = np.array([0.2, 0.7, 0.8, 0.1, 0.3])
+                            q_values = np.array([0.2, 0.8, 0.7, 0.4, 0.5])
                         elif soc_std < -0.5:  # Low SoC - prefer charging
-                            q_values = np.array([0.8, 0.6, 0.2, 0.1, 0.4])
+                            q_values = np.array([0.6, 0.9, 0.2, 0.1, 0.6])
                         elif soc_std > 1.0:  # High SoC - prefer discharge
-                            q_values = np.array([0.1, 0.3, 0.4, 0.8, 0.5])
-                        else:  # Normal conditions - prefer maintain
-                            q_values = np.array([0.4, 0.5, 0.3, 0.2, 0.9])
+                            q_values = np.array([0.1, 0.3, 0.4, 0.9, 0.7])
+                        else:  # Normal conditions - prefer maintain/slow charge
+                            q_values = np.array([0.5, 0.8, 0.3, 0.3, 0.9])
                 else:
-                    q_values = np.array([0.4, 0.5, 0.3, 0.2, 0.9])  # Prefer maintain as default
+                    q_values = np.array([0.5, 0.8, 0.3, 0.3, 0.9])  # Prefer maintain/slow charge as default
             
             # Get best action
             action_idx = np.argmax(q_values)
@@ -471,28 +475,37 @@ class BatteryManagementSystem:
         import json
         from datetime import datetime
         
-        untrained_entry = {
-            'timestamp': datetime.now().isoformat(),
-            'state_bins': debug_info['state_bins'],
-            'state_index': debug_info['state_index'],
-            'standardized_telemetry': {
-                'temperature': debug_info['temp_std'],
-                'soc': debug_info['soc_std'],
-                'voltage': debug_info['voltage_std'],
-                'c_rate': telemetry.get('c_rate', 0.0),
-                'power': telemetry.get('power', 0.0),
-                'is_anomaly': telemetry.get('is_anomaly', False)
-            },
-            'real_world_context': {
-                'temperature_celsius': telemetry.get('temperature', 25.0),
-                'soc_percentage': telemetry.get('soc', 0.5) * 100,
-                'voltage': telemetry.get('voltage', 3.7),
-                'scenario': telemetry.get('scenario', 'Unknown')
-            },
-            'q_values_zero': debug_info['q_values'],
-            'default_action_used': telemetry.get('action', 'pause'),
-            'safety_priority': 'high' if debug_info['temp_std'] > 1.5 or debug_info['soc_std'] < -2.0 else 'normal'
-        }
+        try:
+            untrained_entry = {
+                'timestamp': datetime.now().isoformat(),
+                'state_bins': debug_info.get('state_bins', []),
+                'state_index': debug_info.get('state_index', ''),
+                'standardized_telemetry': {
+                    'temperature': float(debug_info.get('temp_std', 0.0)),
+                    'soc': float(debug_info.get('soc_std', 0.0)),
+                    'voltage': float(debug_info.get('voltage_std', 0.0)),
+                    'c_rate': float(telemetry.get('c_rate', 0.0)),
+                    'power': float(telemetry.get('power', 0.0)),
+                    'is_anomaly': bool(telemetry.get('is_anomaly', False))
+                },
+                'real_world_context': {
+                    'temperature_celsius': float(telemetry.get('temperature', 25.0)),
+                    'soc_percentage': float(telemetry.get('soc', 0.5)) * 100,
+                    'voltage': float(telemetry.get('voltage', 3.7)),
+                    'scenario': str(telemetry.get('scenario', 'Unknown'))
+                },
+                'q_values_zero': debug_info.get('q_values', [0.0, 0.0, 0.0, 0.0, 0.0]),
+                'safety_priority': 'high' if debug_info.get('temp_std', 0.0) > 1.5 or debug_info.get('soc_std', 0.0) < -2.0 else 'normal'
+            }
+        except Exception as e:
+            # If there's an error creating the entry, create a minimal one
+            untrained_entry = {
+                'timestamp': datetime.now().isoformat(),
+                'state_bins': debug_info.get('state_bins', []),
+                'error': f"Failed to create full entry: {str(e)}",
+                'debug_info_keys': list(debug_info.keys()) if isinstance(debug_info, dict) else 'not_dict',
+                'telemetry_keys': list(telemetry.keys()) if isinstance(telemetry, dict) else 'not_dict'
+            }
         
         # Save to dedicated untrained states file
         untrained_file = Path("rl_untrained_states.json")
@@ -501,34 +514,41 @@ class BatteryManagementSystem:
             if untrained_file.exists():
                 try:
                     with open(untrained_file, 'r') as f:
-                        untrained_states = json.load(f)
-                except (json.JSONDecodeError, Exception):
+                        content = f.read().strip()
+                        if content:
+                            untrained_states = json.loads(content)
+                        else:
+                            untrained_states = []
+                except (json.JSONDecodeError, Exception) as e:
+                    # If file is corrupted, start fresh
                     untrained_states = []
             else:
                 untrained_states = []
             
             # Check if this exact state already exists (avoid duplicates)
-            state_signature = str(debug_info['state_bins'])
-            existing_signatures = [str(s['state_bins']) for s in untrained_states]
+            state_signature = str(debug_info.get('state_bins', []))
+            existing_signatures = [str(s.get('state_bins', [])) for s in untrained_states if isinstance(s, dict)]
             
             if state_signature not in existing_signatures:
                 untrained_states.append(untrained_entry)
                 
-                # Write back to file
+                # Write back to file with proper error handling
                 with open(untrained_file, 'w') as f:
-                    json.dump(untrained_states, f, indent=2)
+                    json.dump(untrained_states, f, indent=2, ensure_ascii=False)
+                    f.flush()  # Ensure data is written
                     
         except Exception as e:
             # Fail silently to not interrupt dashboard
             pass
 
-    def log_prediction_data(self, telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status):
+    def log_prediction_data(self, telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason=None, critical_count=0, warning_count=0):
         """Log prediction data for validation and analysis"""
         import json
         from datetime import datetime
         
-        # Get action reason
-        action_reason = self.get_action_reason(telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status)
+        # Get action reason if not provided
+        if action_reason is None:
+            action_reason = self.get_action_reason(telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status)
         
         # Create log entry
         log_entry = {
@@ -558,7 +578,18 @@ class BatteryManagementSystem:
                 'reason': action_reason
             },
             'safety_assessment': safety_status,
-            'ensemble_anomaly_probability': float(anomaly_predictions.get('ensemble', {}).get('probability', 0.5))
+            'ensemble_anomaly_probability': float(anomaly_predictions.get('ensemble', {}).get('probability', 0.5)),
+            'alerts': {
+                'critical_count': int(critical_count),
+                'warning_count': int(warning_count),
+                'critical_conditions': {
+                    'high_temperature': bool(telemetry.get('temperature', 0) > 40),
+                    'low_soc': bool(telemetry.get('soc', 0) < 0.15),
+                    'low_voltage': bool(telemetry.get('voltage', 0) < 3.2),
+                    'risk_status': bool(safety_status == "RISK"),
+                    'high_anomaly_prob': bool(anomaly_predictions.get('ensemble', {}).get('probability', 0) > 0.8)
+                }
+            }
         }
         
         # Add RL debug info if available (for training improvement analysis)
@@ -687,6 +718,12 @@ def main():
     # Debug toggle
     debug_rl = st.sidebar.checkbox("🔧 Debug RL Agent", value=False, 
                                    help="Show RL agent internal state, Q-values, and identify untrained states. Debug info is also logged for training improvements.")
+    
+    # Test critical conditions button
+    if st.sidebar.button("🧪 Test Critical Conditions"):
+        st.session_state.accumulated_alerts["critical"] += 1
+        st.session_state.alert_history["critical"].append(f"{datetime.now().strftime('%H:%M:%S')}: Test critical alert")
+        st.sidebar.success("Added test critical alert!")
     
     # Show logging status with file info
     log_file = Path("prediction_validation_log.json")
@@ -831,8 +868,10 @@ def main():
         
         # Add anomaly flag to standardized telemetry for RL agent
         ensemble_prob = anomaly_predictions.get('ensemble', {}).get('probability', 0.5)
-        standardized_telemetry['is_anomaly'] = ensemble_prob > 0.4  # Same threshold as anomaly detection
+        standardized_telemetry['is_anomaly'] = ensemble_prob > 0.7  # High threshold to avoid over-conservative actions for borderline cases
         
+        # Store raw telemetry for untrained state logging
+        bms.current_raw_telemetry = current_telemetry
         rl_action, rl_confidence = bms.get_rl_action(standardized_telemetry, debug_rl)
         bhi = bms.calculate_bhi(current_telemetry)
         
@@ -843,8 +882,7 @@ def main():
         # Get action reason for display and logging
         action_reason = bms.get_action_reason(current_telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status)
         
-        # Log prediction data for validation
-        bms.log_prediction_data(current_telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status)
+        # Log prediction data for validation (will be called after critical/warning counts are calculated)
         
         # Top metrics row
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -1078,32 +1116,89 @@ def main():
         if "alert_history" not in st.session_state:
             st.session_state.alert_history = {"critical": [], "warning": []}
         
-        # Current status check
+        # Initialize accumulated alert counters
+        if "accumulated_alerts" not in st.session_state:
+            st.session_state.accumulated_alerts = {
+                "critical": 0,
+                "warning": 0
+            }
+        
+        # Get accumulated counts
+        accumulated_critical = st.session_state.accumulated_alerts["critical"]
+        accumulated_warning = st.session_state.accumulated_alerts["warning"]
+        
+        # Current status check (for display purposes)
         current_critical = 0
         current_warning = 0
         current_time = datetime.now().strftime("%H:%M:%S")
         
-        # Check critical conditions
-        if current_telemetry['temperature'] > 45:
+        # Check critical conditions based on safety status and ensemble probability
+        if safety_status == "RISK" or ensemble_prob > 0.8:
+            st.error("🔥 CRITICAL: System at RISK!")
+            current_critical += 1
+        elif safety_status == "WARN" or ensemble_prob > 0.6:
+            st.warning("⚠️ WARNING: System needs attention!")
+            current_warning += 1
+        
+        # Also check individual critical conditions for additional alerts
+        if current_telemetry['temperature'] > 40:  # Lowered from 45°C
             st.error("🔥 CRITICAL: Battery temperature exceeds safe limits!")
             current_critical += 1
-            st.session_state.alert_history["critical"].append(f"{current_time}: High temp")
         
-        if current_telemetry['soc'] < 0.1:
+        if current_telemetry['soc'] < 0.15:  # Raised from 0.1 (10% to 15%)
             st.error("🔋 CRITICAL: Battery critically low!")
             current_critical += 1
-            st.session_state.alert_history["critical"].append(f"{current_time}: Low SoC")
+        
+        if current_telemetry['voltage'] < 3.2:  # Raised from 3.0V
+            st.error("⚡ CRITICAL: Battery voltage critically low!")
+            current_critical += 1
         
         # Check warning conditions
         if current_telemetry['soc'] > 0.9 and current_telemetry['current'] > 0:
             st.warning("⚡ WARNING: Battery nearly full!")
             current_warning += 1
-            st.session_state.alert_history["warning"].append(f"{current_time}: High SoC")
         
-        if ensemble_prob > 0.8:
-            st.warning("🎯 HIGH anomaly probability!")
+        if current_telemetry['temperature'] > 35 and current_telemetry['temperature'] <= 45:
+            st.warning("🌡️ WARNING: Battery temperature elevated!")
             current_warning += 1
-            st.session_state.alert_history["warning"].append(f"{current_time}: Anomaly")
+        
+        if current_telemetry['soc'] < 0.2 and current_telemetry['soc'] >= 0.1:
+            st.warning("🔋 WARNING: Battery low!")
+            current_warning += 1
+        
+        # Check anomaly probability
+        if ensemble_prob > 0.8:
+            st.warning("🎯 WARNING: High anomaly probability!")
+            current_warning += 1
+        
+        # Log prediction data for validation (after critical/warning counts are calculated)
+        bms.log_prediction_data(current_telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason, current_critical, current_warning)
+        
+        # Accumulate alerts when conditions are met
+        if current_critical > 0:
+            # Add to accumulated count
+            st.session_state.accumulated_alerts["critical"] += current_critical
+            # Add to history
+            for _ in range(current_critical):
+                st.session_state.alert_history["critical"].append(f"{current_time}: Critical alert")
+        
+        if current_warning > 0:
+            # Add to accumulated count
+            st.session_state.accumulated_alerts["warning"] += current_warning
+            # Add to history
+            for _ in range(current_warning):
+                st.session_state.alert_history["warning"].append(f"{current_time}: Warning alert")
+        
+        # Debug: Show what conditions are being checked
+        if debug_rl:
+            st.sidebar.write("**🔍 Condition Debug:**")
+            st.sidebar.write(f"Safety Status: {safety_status}")
+            st.sidebar.write(f"Ensemble Prob: {ensemble_prob:.3f} (>0.8: {ensemble_prob > 0.8})")
+            st.sidebar.write(f"Temp: {current_telemetry['temperature']:.1f}°C (>40°C: {current_telemetry['temperature'] > 40})")
+            st.sidebar.write(f"SoC: {current_telemetry['soc']*100:.1f}% (<15%: {current_telemetry['soc'] < 0.15})")
+            st.sidebar.write(f"Voltage: {current_telemetry['voltage']:.2f}V (<3.2V: {current_telemetry['voltage'] < 3.2})")
+            st.sidebar.write(f"Current Critical: {current_critical}")
+            st.sidebar.write(f"Current Warning: {current_warning}")
         
         # Keep only recent alerts (last 10 of each type)
         st.session_state.alert_history["critical"] = st.session_state.alert_history["critical"][-10:]
@@ -1112,6 +1207,20 @@ def main():
         if current_critical == 0 and current_warning == 0:
             st.success("✅ All systems operating normally")
         
+        # Debug information (can be removed later)
+        if debug_rl:  # Reuse the debug toggle
+            st.sidebar.write("**🔍 Alert Debug Info:**")
+            st.sidebar.write(f"Accumulated Critical: {accumulated_critical}")
+            st.sidebar.write(f"Current Critical: {current_critical}")
+            st.sidebar.write(f"Critical Delta: {critical_delta}")
+            st.sidebar.write(f"Accumulated Warning: {accumulated_warning}")
+            st.sidebar.write(f"Current Warning: {current_warning}")
+            st.sidebar.write(f"Warning Delta: {warning_delta}")
+        
+        # Calculate deltas for proper change tracking
+        critical_delta = current_critical  # Show current alerts as delta
+        warning_delta = current_warning    # Show current alerts as delta
+        
         # Dynamic summary with deltas
         total_critical = len(st.session_state.alert_history["critical"])
         total_warning = len(st.session_state.alert_history["warning"])
@@ -1119,17 +1228,17 @@ def main():
         col1, col2, col3 = st.columns(3)
         with col1:
             st.metric(
-                "🚨 Critical Now", 
-                current_critical,
-                delta=f"Total: {total_critical}" if total_critical > 0 else None,
-                help=f"Current critical alerts: {current_critical}, Historical: {total_critical}"
+                "🚨 Critical Total", 
+                accumulated_critical,
+                delta=critical_delta if critical_delta != 0 else None,
+                help=f"Accumulated: {accumulated_critical}, Current: {current_critical}, History: {total_critical}"
             )
         with col2:
             st.metric(
-                "⚠️ Warnings Now", 
-                current_warning,
-                delta=f"Total: {total_warning}" if total_warning > 0 else None,
-                help=f"Current warnings: {current_warning}, Historical: {total_warning}"
+                "⚠️ Warnings Total", 
+                accumulated_warning,
+                delta=warning_delta if warning_delta != 0 else None,
+                help=f"Accumulated: {accumulated_warning}, Current: {current_warning}, History: {total_warning}"
             )
         with col3:
             system_health = "GOOD" if current_critical == 0 and current_warning == 0 else "CAUTION" if current_critical == 0 else "CRITICAL"
