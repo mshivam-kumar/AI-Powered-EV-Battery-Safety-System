@@ -1,0 +1,2178 @@
+[
+  {
+    "timestamp": "2025-10-03T00:55:18.163476",
+    "state_bins": [
+      3,
+      1,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(3,1,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.9847391920448576,
+      "soc": -1.6151878530550667,
+      "voltage": 0.815608179378069,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 32.87791353635886,
+      "soc_percentage": 25.772182204173998,
+      "voltage": 4.026243271751228,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:21.735171",
+    "state_bins": [
+      4,
+      1,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,1,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.1972410383326233,
+      "soc": -1.0780047773489465,
+      "voltage": -0.1743682423396009,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.422071693339014,
+      "soc_percentage": 33.8299283397658,
+      "voltage": 3.63025270306416,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:25.654754",
+    "state_bins": [
+      4,
+      0,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,0,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.3664649329177516,
+      "soc": 1.681924517880035,
+      "voltage": 0.15103861611575398,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 27.931719463342013,
+      "soc_percentage": 75.22886776820053,
+      "voltage": 3.7604154464463018,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:29.372390",
+    "state_bins": [
+      4,
+      0,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,0,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.11549636752112047,
+      "soc": -1.667850202674078,
+      "voltage": 0.18746220326786855,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 24.076029059831036,
+      "soc_percentage": 24.982246959888833,
+      "voltage": 3.7749848813071476,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:33.171273",
+    "state_bins": [
+      4,
+      3,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,3,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.03393637150377238,
+      "soc": 0.14569894990698126,
+      "voltage": 0.51322944495789,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 25.27149097203018,
+      "soc_percentage": 52.185484248604716,
+      "voltage": 3.905291777983156,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:36.963773",
+    "state_bins": [
+      4,
+      4,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,4,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.7326672941536652,
+      "soc": 1.126412565970961,
+      "voltage": 0.9925251129449486,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 30.86133835322932,
+      "soc_percentage": 66.89618848956441,
+      "voltage": 4.09701004517798,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:41.389013",
+    "state_bins": [
+      4,
+      1,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,1,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.19547121838618198,
+      "soc": -1.128770761591426,
+      "voltage": 0.24194034978840984,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.436230252910544,
+      "soc_percentage": 33.068438576128614,
+      "voltage": 3.796776139915364,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:46.331019",
+    "state_bins": [
+      4,
+      2,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,2,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.937212729548353,
+      "soc": 0.24027648099924193,
+      "voltage": 0.6304942369572597,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 32.497701836386824,
+      "soc_percentage": 53.60414721498863,
+      "voltage": 3.952197694782904,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:48.629087",
+    "state_bins": [
+      4,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,0,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.29608007667625547,
+      "soc": 1.6169123709779187,
+      "voltage": -0.14695303872821586,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 22.631359386589956,
+      "soc_percentage": 74.25368556466879,
+      "voltage": 3.641218784508714,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:53.086254",
+    "state_bins": [
+      2,
+      1,
+      2,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(2,1,2,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.9419086495154048,
+      "soc": -2.3936725814102418,
+      "voltage": 0.7642406629017473,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 32.53526919612324,
+      "soc_percentage": 14.094911278846373,
+      "voltage": 4.005696265160699,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T00:55:59.942283",
+    "state_bins": [
+      4,
+      1,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,1,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.18033414125101288,
+      "soc": -1.7606669519572127,
+      "voltage": -0.14943673509998034,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 26.442673130008103,
+      "soc_percentage": 23.58999572064181,
+      "voltage": 3.640225305960008,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T00:56:02.489093",
+    "state_bins": [
+      4,
+      1,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,1,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0182677012878472,
+      "soc": -0.139536946200108,
+      "voltage": 0.7597638147388763,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.14614161030278,
+      "soc_percentage": 47.90694580699838,
+      "voltage": 4.003905525895551,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:11:09.906437",
+    "state_bins": [
+      1,
+      0,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(1,0,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0450402704822448,
+      "soc": 1.1543126870347562,
+      "voltage": 0.4900623260722681,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.36032216385796,
+      "soc_percentage": 67.31469030552134,
+      "voltage": 3.8960249304289074,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:05.159002",
+    "state_bins": [
+      4,
+      0,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,0,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.16724265788363368,
+      "soc": -0.620273017361374,
+      "voltage": -0.21299420042310113,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 26.33794126306907,
+      "soc_percentage": 40.69590473957939,
+      "voltage": 3.6148023198307597,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:07.998887",
+    "state_bins": [
+      4,
+      3,
+      2,
+      1,
+      1,
+      0
+    ],
+    "state_index": "(4,3,2,1,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.2959054561987613,
+      "soc": -2.1191419019474242,
+      "voltage": -0.3837277480879919,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 27.36724364959009,
+      "soc_percentage": 18.21287147078864,
+      "voltage": 3.5465089007648034,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:10.791373",
+    "state_bins": [
+      1,
+      0,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(1,0,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.44600754651562546,
+      "soc": 1.7154587934074088,
+      "voltage": 0.6828178450168032,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 28.568060372125004,
+      "soc_percentage": 75.73188190111114,
+      "voltage": 3.9731271380067215,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:16.758033",
+    "state_bins": [
+      4,
+      2,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,2,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.3632161340890372,
+      "soc": 0.11854140229980252,
+      "voltage": 0.36033836861966817,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 22.094270927287702,
+      "soc_percentage": 51.77812103449704,
+      "voltage": 3.8441353474478674,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:19.602525",
+    "state_bins": [
+      4,
+      4,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,4,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.1846014421376414,
+      "soc": 1.4391308547205577,
+      "voltage": 0.547499401167183,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.52318846289887,
+      "soc_percentage": 71.58696282080837,
+      "voltage": 3.9189997604668734,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:22.500031",
+    "state_bins": [
+      4,
+      1,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,1,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.6028909445306301,
+      "soc": -0.967289817123127,
+      "voltage": 0.5428983398537557,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 29.82312755624504,
+      "soc_percentage": 35.49065274315309,
+      "voltage": 3.9171593359415025,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:25.375769",
+    "state_bins": [
+      4,
+      0,
+      3,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,0,3,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 1.6146946134368774,
+      "soc": 1.1625449924823004,
+      "voltage": -0.08829247275639607,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 37.91755690749502,
+      "soc_percentage": 67.43817488723451,
+      "voltage": 3.6646830108974418,
+      "scenario": "Moderate Temperature"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:13:28.371213",
+    "state_bins": [
+      4,
+      3,
+      2,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(4,3,2,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.7302499970110294,
+      "soc": -2.1693543196423577,
+      "voltage": 0.9548646831809204,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 30.841999976088236,
+      "soc_percentage": 17.459685205364632,
+      "voltage": 4.081945873272368,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:40:58.366125",
+    "state_bins": [
+      4,
+      3,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,3,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.3216752989998577,
+      "soc": -1.4499256265092086,
+      "voltage": 0.7308527119946273,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 22.42659760800114,
+      "soc_percentage": 28.25111560236187,
+      "voltage": 3.992341084797851,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:01.185772",
+    "state_bins": [
+      3,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(3,0,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.4918644264653427,
+      "soc": -1.652203853221883,
+      "voltage": -0.49819041864052505,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 21.06508458827726,
+      "soc_percentage": 25.216942201671756,
+      "voltage": 3.50072383254379,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:09.825649",
+    "state_bins": [
+      1,
+      0,
+      1,
+      1,
+      1,
+      0
+    ],
+    "state_index": "(1,0,1,1,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.06861789357763293,
+      "soc": -2.5995240839877094,
+      "voltage": -0.3545942456203022,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 24.451056851378937,
+      "soc_percentage": 11.007138740184363,
+      "voltage": 3.5581623017518793,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:15.465567",
+    "state_bins": [
+      3,
+      0,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(3,0,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.48747819202256615,
+      "soc": -0.35772500862336043,
+      "voltage": -0.3157469665738599,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 28.89982553618053,
+      "soc_percentage": 44.63412487064959,
+      "voltage": 3.573701213370456,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:21.318802",
+    "state_bins": [
+      1,
+      0,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(1,0,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.265199381404547,
+      "soc": 0.6665408977773812,
+      "voltage": -0.4837310937068695,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 27.121595051236376,
+      "soc_percentage": 59.99811346666072,
+      "voltage": 3.5065075625172524,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:26.878490",
+    "state_bins": [
+      4,
+      2,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,2,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.1821099868161773,
+      "soc": -1.3286497693571209,
+      "voltage": -0.34586034347255823,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.54312010547058,
+      "soc_percentage": 30.070253459643187,
+      "voltage": 3.561655862610977,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:29.746946",
+    "state_bins": [
+      4,
+      4,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,4,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0247939006997573,
+      "soc": 1.298290481998407,
+      "voltage": 0.9626799997511859,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.19835120559806,
+      "soc_percentage": 69.4743572299761,
+      "voltage": 4.0850719999004745,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:32.593241",
+    "state_bins": [
+      4,
+      1,
+      3,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,1,3,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 1.1944992862727046,
+      "soc": -0.4339745042169463,
+      "voltage": -0.4999330360316179,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 34.55599429018164,
+      "soc_percentage": 43.490382436745804,
+      "voltage": 3.500026785587353,
+      "scenario": "Moderate Temperature"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:52.660085",
+    "state_bins": [
+      4,
+      2,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,2,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.45696141654351674,
+      "soc": 1.9876243375266522,
+      "voltage": -0.4481675827985132,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 28.655691332348134,
+      "soc_percentage": 79.81436506289978,
+      "voltage": 3.520732966880595,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:41:55.455404",
+    "state_bins": [
+      4,
+      3,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,3,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0674174610160838,
+      "soc": -0.17107470607465203,
+      "voltage": 0.9349752242876241,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.53933968812867,
+      "soc_percentage": 47.433879408880216,
+      "voltage": 4.07399008971505,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:06.975267",
+    "state_bins": [
+      4,
+      3,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,3,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.5455338734296689,
+      "soc": 0.00298455008996464,
+      "voltage": -0.39801294990362557,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 29.36427098743735,
+      "soc_percentage": 50.04476825134947,
+      "voltage": 3.54079482003855,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:09.778542",
+    "state_bins": [
+      4,
+      0,
+      4,
+      2,
+      1,
+      1
+    ],
+    "state_index": "(4,0,4,2,1,1)",
+    "standardized_telemetry": {
+      "temperature": 2.1741006051347638,
+      "soc": -1.089206252405258,
+      "voltage": -0.2743971719541882,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 42.39280484107811,
+      "soc_percentage": 33.661906213921135,
+      "voltage": 3.590241131218325,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:12.725933",
+    "state_bins": [
+      0,
+      0,
+      1,
+      1,
+      0,
+      0
+    ],
+    "state_index": "(0,0,1,1,0,0)",
+    "standardized_telemetry": {
+      "temperature": -0.5423467390219399,
+      "soc": -2.3416543469091406,
+      "voltage": -1.1751011203169326,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 20.66122608782448,
+      "soc_percentage": 14.87518479636289,
+      "voltage": 3.229959551873227,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:15.541283",
+    "state_bins": [
+      0,
+      0,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(0,0,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.6025012936742749,
+      "soc": 0.007775928998900265,
+      "voltage": 0.04547644489505953,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 20.1799896506058,
+      "soc_percentage": 50.116638934983506,
+      "voltage": 3.718190577958024,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:18.318556",
+    "state_bins": [
+      4,
+      2,
+      1,
+      1,
+      1,
+      0
+    ],
+    "state_index": "(4,2,1,1,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.21015468813556293,
+      "soc": -2.3194834626198793,
+      "voltage": -0.2811520990480809,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.318762494915497,
+      "soc_percentage": 15.207748060701814,
+      "voltage": 3.587539160380768,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:24.111699",
+    "state_bins": [
+      4,
+      1,
+      3,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(4,1,3,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0760947295674157,
+      "soc": -2.0173415750070722,
+      "voltage": 0.7699131611861842,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.608757836539326,
+      "soc_percentage": 19.739876374893917,
+      "voltage": 4.007965264474474,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:41.559989",
+    "state_bins": [
+      4,
+      2,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(4,2,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.1238628293467317,
+      "soc": 0.10729268857854339,
+      "voltage": 0.41268083496561414,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.99090263477385,
+      "soc_percentage": 51.60939032867815,
+      "voltage": 3.865072333986246,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:53.161822",
+    "state_bins": [
+      4,
+      4,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,4,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.4249007549945274,
+      "soc": -0.0039964933014817,
+      "voltage": -0.45228744265263354,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 21.60079396004378,
+      "soc_percentage": 49.94005260047778,
+      "voltage": 3.5190850229389468,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:42:58.768052",
+    "state_bins": [
+      3,
+      1,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(3,1,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0483794464950922,
+      "soc": -0.5368541362038437,
+      "voltage": 0.8776758702146137,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.38703557196074,
+      "soc_percentage": 41.947187956942344,
+      "voltage": 4.051070348085846,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:43:33.259201",
+    "state_bins": [
+      4,
+      4,
+      2,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(4,4,2,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.8759419239361037,
+      "soc": -2.359700626518068,
+      "voltage": 0.7036760050978264,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 32.00753539148883,
+      "soc_percentage": 14.604490602228987,
+      "voltage": 3.9814704020391307,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:43:36.098472",
+    "state_bins": [
+      2,
+      0,
+      3,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(2,0,3,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 1.3773570088767642,
+      "soc": 1.0354296094008975,
+      "voltage": -0.0805688650163694,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 36.01885607101411,
+      "soc_percentage": 65.53144414101347,
+      "voltage": 3.6677724539934524,
+      "scenario": "Moderate Temperature"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:43:50.608632",
+    "state_bins": [
+      2,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(2,0,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.27421834384137167,
+      "soc": -1.5622565326019804,
+      "voltage": -0.26114556273760137,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 22.806253249269027,
+      "soc_percentage": 26.566152010970296,
+      "voltage": 3.5955417749049596,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:43:53.433659",
+    "state_bins": [
+      4,
+      4,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,4,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.08912050988731268,
+      "soc": -1.7713282934661576,
+      "voltage": -0.649238886446144,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 25.7129640790985,
+      "soc_percentage": 23.43007559800764,
+      "voltage": 3.4403044454215426,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:43:56.446656",
+    "state_bins": [
+      3,
+      0,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(3,0,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.8468413146207263,
+      "soc": -0.5308771722552463,
+      "voltage": 0.44921540423215833,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 31.77473051696581,
+      "soc_percentage": 42.036842416171304,
+      "voltage": 3.8796861616928635,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:05.105027",
+    "state_bins": [
+      1,
+      0,
+      1,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(1,0,1,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": -0.5061468756474943,
+      "soc": 0.40260940347589835,
+      "voltage": 0.6440666179318522,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 20.950824994820046,
+      "soc_percentage": 56.039141052138476,
+      "voltage": 3.957626647172741,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:25.435949",
+    "state_bins": [
+      4,
+      4,
+      3,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(4,4,3,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.0164815560200964,
+      "soc": -2.131154679519633,
+      "voltage": 0.9905333278848238,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.13185244816077,
+      "soc_percentage": 18.03267980720551,
+      "voltage": 4.09621333115393,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:28.272874",
+    "state_bins": [
+      4,
+      3,
+      4,
+      2,
+      0,
+      1
+    ],
+    "state_index": "(4,3,4,2,0,1)",
+    "standardized_telemetry": {
+      "temperature": 2.0615800380665315,
+      "soc": 1.1634601788008112,
+      "voltage": -1.4223271927481795,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 41.49264030453225,
+      "soc_percentage": 67.45190268201216,
+      "voltage": 3.1310691229007284,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:31.220355",
+    "state_bins": [
+      4,
+      2,
+      3,
+      2,
+      1,
+      1
+    ],
+    "state_index": "(4,2,3,2,1,1)",
+    "standardized_telemetry": {
+      "temperature": 1.5302460566852378,
+      "soc": 0.9313383109841644,
+      "voltage": -0.5411506080538764,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 37.2419684534819,
+      "soc_percentage": 63.970074664762464,
+      "voltage": 3.4835397567784496,
+      "scenario": "Moderate Temperature"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:34.199930",
+    "state_bins": [
+      3,
+      2,
+      1,
+      1,
+      0,
+      1
+    ],
+    "state_index": "(3,2,1,1,0,1)",
+    "standardized_telemetry": {
+      "temperature": -0.21606845646848072,
+      "soc": -2.5009329770927184,
+      "voltage": -1.2317591263765482,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.271452348252154,
+      "soc_percentage": 12.486005343609225,
+      "voltage": 3.207296349449381,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:44:51.312191",
+    "state_bins": [
+      4,
+      3,
+      2,
+      1,
+      1,
+      1
+    ],
+    "state_index": "(4,3,2,1,1,1)",
+    "standardized_telemetry": {
+      "temperature": 0.09358077493178296,
+      "soc": -2.5320472730006673,
+      "voltage": -0.6124216684567518,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 25.748646199454264,
+      "soc_percentage": 12.019290904989994,
+      "voltage": 3.4550313326172994,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:45:03.117763",
+    "state_bins": [
+      4,
+      3,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(4,3,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.22518834308639857,
+      "soc": -1.6785497005773498,
+      "voltage": -0.5299543974027887,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 23.19849325530881,
+      "soc_percentage": 24.821754491339753,
+      "voltage": 3.4880182410388847,
+      "scenario": "Low SoC"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:45:11.856397",
+    "state_bins": [
+      0,
+      0,
+      3,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(0,0,3,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 1.1203715496785263,
+      "soc": -1.4956727939044432,
+      "voltage": 0.31557113411520454,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 33.96297239742821,
+      "soc_percentage": 27.564908091433356,
+      "voltage": 3.826228453646082,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T01:45:35.340053",
+    "state_bins": [
+      4,
+      2,
+      2,
+      1,
+      2,
+      0
+    ],
+    "state_index": "(4,2,2,1,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.6387203495317104,
+      "soc": -2.615991831667967,
+      "voltage": 0.5028700437734834,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 30.109762796253683,
+      "soc_percentage": 10.760122524980492,
+      "voltage": 3.9011480175093936,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:45:55.976298",
+    "state_bins": [
+      4,
+      4,
+      3,
+      1,
+      2,
+      1
+    ],
+    "state_index": "(4,4,3,1,2,1)",
+    "standardized_telemetry": {
+      "temperature": 1.902026228960696,
+      "soc": -2.025953628865553,
+      "voltage": 0.6811642255497219,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 40.21620983168557,
+      "soc_percentage": 19.610695567016712,
+      "voltage": 3.972465690219889,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T01:46:16.570867",
+    "state_bins": [
+      1,
+      0,
+      3,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(1,0,3,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 1.2329513413174817,
+      "soc": -0.5711787678781485,
+      "voltage": -0.6640288513497272,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 34.863610730539854,
+      "soc_percentage": 41.43231848182777,
+      "voltage": 3.4343884594601093,
+      "scenario": "Moderate Temperature"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T04:21:31.450496",
+    "state_bins": [
+      0,
+      0,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(0,0,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.0,
+      "soc": 0.0,
+      "voltage": 0.0,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 25.0,
+      "soc_percentage": 50.0,
+      "voltage": 3.7,
+      "scenario": "Manual Input"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T04:52:25.211958",
+    "state_bins": [
+      1,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(1,0,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.12336155472141197,
+      "soc": -1.9914523552104035,
+      "voltage": -0.015893299074533074,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 24.013107562228704,
+      "soc_percentage": 20.128214671843946,
+      "voltage": 3.693642680370187,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T04:52:30.899652",
+    "state_bins": [
+      4,
+      4,
+      4,
+      2,
+      2,
+      1
+    ],
+    "state_index": "(4,4,4,2,2,1)",
+    "standardized_telemetry": {
+      "temperature": 2.1936839105305204,
+      "soc": 0.014328428297218181,
+      "voltage": 0.4718022298624658,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 42.54947128424416,
+      "soc_percentage": 50.21492642445827,
+      "voltage": 3.8887208919449865,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T04:53:31.116730",
+    "state_bins": [
+      2,
+      0,
+      2,
+      2,
+      2,
+      0
+    ],
+    "state_index": "(2,0,2,2,2,0)",
+    "standardized_telemetry": {
+      "temperature": 0.8204363801905528,
+      "soc": -1.2105607365020232,
+      "voltage": 0.5787365623813712,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 31.563491041524422,
+      "soc_percentage": 31.841588952469653,
+      "voltage": 3.9314946249525486,
+      "scenario": "Fast Charging"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T04:54:26.078783",
+    "state_bins": [
+      0,
+      0,
+      2,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(0,0,2,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": 0.29797082221297755,
+      "soc": 0.4950990337728989,
+      "voltage": -0.27744935315945574,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 27.38376657770382,
+      "soc_percentage": 57.42648550659348,
+      "voltage": 3.589020258736218,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T04:54:29.060016",
+    "state_bins": [
+      4,
+      2,
+      4,
+      3,
+      2,
+      1
+    ],
+    "state_index": "(4,2,4,3,2,1)",
+    "standardized_telemetry": {
+      "temperature": 2.025170314368162,
+      "soc": 2.75982273836417,
+      "voltage": 0.7158624476043096,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 41.201362514945295,
+      "soc_percentage": 91.39734107546255,
+      "voltage": 3.986344979041724,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  },
+  {
+    "timestamp": "2025-10-03T05:00:56.706074",
+    "state_bins": [
+      0,
+      0,
+      1,
+      2,
+      1,
+      0
+    ],
+    "state_index": "(0,0,1,2,1,0)",
+    "standardized_telemetry": {
+      "temperature": -0.6042681726747428,
+      "soc": -1.0128182562625943,
+      "voltage": -0.043414890713715515,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 20.165854618602058,
+      "soc_percentage": 34.807726156061086,
+      "voltage": 3.682634043714514,
+      "scenario": "Normal Operation"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "normal"
+  },
+  {
+    "timestamp": "2025-10-03T05:00:59.472503",
+    "state_bins": [
+      4,
+      0,
+      4,
+      2,
+      2,
+      1
+    ],
+    "state_index": "(4,0,4,2,2,1)",
+    "standardized_telemetry": {
+      "temperature": 2.4708003819601307,
+      "soc": 0.8901934388872916,
+      "voltage": 0.3947845490439361,
+      "c_rate": 0.0,
+      "power": 0.0,
+      "is_anomaly": false
+    },
+    "real_world_context": {
+      "temperature_celsius": 44.766403055681046,
+      "soc_percentage": 63.352901583309375,
+      "voltage": 3.8579138196175746,
+      "scenario": "Critical Condition"
+    },
+    "q_values_zero": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "safety_priority": "high"
+  }
+]

@@ -50,15 +50,32 @@ if "climate_zone" not in st.session_state:
     st.session_state.climate_zone = "Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)"
 if "charge_mode" not in st.session_state:
     st.session_state.charge_mode = "slow"
+if "location" not in st.session_state:
+    st.session_state.location = "Mumbai"
 
 class BatteryManagementSystem:
     def __init__(self, models_dir="models"):
+        # Use relative path that works in both local and Streamlit Cloud
         self.models_dir = Path(models_dir)
         self.models = {}
         self.load_models()
         
-        # RL Agent actions
+        # RL Agent actions (will be set when model loads)
         self.ACTIONS = ['fast_charge', 'slow_charge', 'pause', 'discharge', 'maintain']
+        
+        # Climate-aware action adjustments (20 combinations)
+        self.climate_adjustments = {
+            # Hot Desert + Summer
+            ('Hot Desert', 'summer'): {'fast_charge': 'slow_charge', 'slow_charge': 'pause'},
+            # Hot Desert + Winter  
+            ('Hot Desert', 'winter'): {'fast_charge': 'slow_charge'},
+            # Tropical Monsoon + Monsoon
+            ('Tropical Monsoon', 'monsoon'): {'fast_charge': 'slow_charge'},
+            # Subtropical Highland + Winter
+            ('Subtropical Highland', 'winter'): {'pause': 'slow_charge', 'fast_charge': 'slow_charge'},
+            # Tropical Wet + Monsoon
+            ('Tropical Wet', 'monsoon'): {'fast_charge': 'slow_charge'},
+        }
         
         # Feature names (CORRECTED to match training exactly)
         self.feature_names = [
@@ -81,9 +98,20 @@ class BatteryManagementSystem:
         ]
     
     def load_models(self):
-        """Load all trained models and data transformer"""
+        """Load all trained models and data transformer with cloud compatibility"""
+        # Check if models directory exists
+        if not self.models_dir.exists():
+            st.error(f"⚠️ Models directory not found: {self.models_dir}")
+            st.warning("🔧 Running in fallback mode - some features may be limited")
+            return
+        
         # Always initialize transformer first
-        self.transformer = TelemetryTransformer(models_dir=str(self.models_dir))
+        try:
+            self.transformer = TelemetryTransformer(models_dir=str(self.models_dir))
+        except Exception as e:
+            st.error(f"⚠️ Could not initialize transformer: {e}")
+            st.warning("🔧 Running in fallback mode - feature engineering may be limited")
+            return
         
         try:
             # Load Random Forest (best predictor) - try complete version first
@@ -97,6 +125,8 @@ class BatteryManagementSystem:
                     st.success("✅ Random Forest model loaded")
                 except Exception as e:
                     st.warning(f"⚠️ Could not load Random Forest: {e}")
+            else:
+                st.warning("⚠️ Random Forest model not found - anomaly detection will use fallback")
             
             # Load MLP Medium (good predictor) - try latest complete version first
             mlp_complete_path = self.models_dir / "mlp_medium_complete.pkl"
@@ -129,18 +159,45 @@ class BatteryManagementSystem:
                     st.info("ℹ️ MLP Medium: Numpy version compatibility issue (scikit-learn 1.6.1 → 1.5.2)")
                     st.info("💡 **Solution**: Run `python scripts/train_mlp.py` to create compatible models")
                     st.success("✅ **Random Forest (98.7% accuracy) is primary predictor - system fully functional!**")
+            else:
+                st.warning("⚠️ MLP Medium model not found - ensemble will use Random Forest only")
             
-            # Load RL Agent (action selector) - use our breakthrough model
-            rl_path = self.models_dir / "rl_robust_enhanced_v2_q_table.pkl"
-            if not rl_path.exists():
-                rl_path = self.models_dir / "rl_safety_focused_q_table.pkl"
-            if rl_path.exists():
-                try:
-                    with open(rl_path, 'rb') as f:
-                        self.models['rl_agent'] = pickle.load(f)
-                    st.success("✅ RL Agent loaded")
-                except Exception as e:
-                    st.warning(f"⚠️ Could not load RL Agent: {e}")
+            # Load RL Agent (action selector) - use best performing model
+            rl_models = [
+                "fine_tuned_from_logs_rl_agent.json",  # Best coverage: 8.2% (from logs)
+                "rl_robust_enhanced_v2_q_table.pkl",  # Fallback
+                "rl_safety_focused_q_table.pkl"  # Final fallback
+            ]
+            
+            rl_loaded = False
+            for rl_model in rl_models:
+                rl_path = self.models_dir / rl_model
+                if rl_path.exists():
+                    try:
+                        if rl_model.endswith('.json'):
+                            # Load JSON format (climate-aware models)
+                            with open(rl_path, 'r') as f:
+                                rl_data = json.load(f)
+                            self.models['rl_agent'] = rl_data['q_table']
+                            self.models['rl_actions'] = rl_data.get('actions', ['fast_charge', 'slow_charge', 'pause', 'discharge', 'maintain'])
+                        else:
+                            # Load pickle format (legacy models)
+                            with open(rl_path, 'rb') as f:
+                                self.models['rl_agent'] = pickle.load(f)
+                            self.models['rl_actions'] = ['fast_charge', 'slow_charge', 'pause', 'discharge', 'maintain']
+                        
+                        if rl_model == "fine_tuned_from_logs_rl_agent.json":
+                            st.success(f"✅ RL Agent loaded from {rl_model} (Best: 8.2% coverage)")
+                        else:
+                            st.success(f"✅ RL Agent loaded from {rl_model}")
+                        rl_loaded = True
+                        break
+                    except Exception as e:
+                        st.warning(f"⚠️ Could not load {rl_model}: {e}")
+                        continue
+            
+            if not rl_loaded:
+                st.warning("⚠️ Could not load any RL Agent - using fallback")
             
             if not self.models:
                 st.warning("⚠️ No models loaded - using fallback predictions")
@@ -272,16 +329,27 @@ class BatteryManagementSystem:
     def get_rl_action(self, telemetry, debug=False):
         """Get RL agent recommended action"""
         if 'rl_agent' not in self.models:
+            if debug:
+                st.sidebar.warning("⚠️ RL Agent not loaded - using fallback action")
             return self.get_fallback_action(telemetry)
         
         try:
+            # Debug: Show useful Q-value info instead of just "loaded successfully"
+            if debug:
+                st.sidebar.write("🔍 **RL Agent Debug:**")
+                # Will show Q-value info in the main debug section below
+            
             # Discretize state (6D for new RL model)
             state = self.discretize_state(telemetry)
+            
+            # Debug: Print state discretization
+            if debug:
+                print(f"🔍 State discretization: {state}")
             
             # Get Q-values for this state
             q_table = self.models['rl_agent']
             
-            # Check if q_table is a numpy array (7D) or dictionary
+            # Check if q_table is a numpy array (7D), list, or dictionary
             if isinstance(q_table, np.ndarray):
                 # 7D array: [c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin, action]
                 c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin = state
@@ -292,6 +360,12 @@ class BatteryManagementSystem:
                     0 <= voltage_bin < q_table.shape[4] and
                     0 <= anomaly_bin < q_table.shape[5]):
                     q_values = q_table[c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin, :]
+                    
+                    # Debug: Simple Q-table existence check
+                    if debug:
+                        print(f"🔍 Q-values retrieved: {q_values}")
+                        print(f"🔍 Q-values sum: {np.sum(q_values)}")
+                        print(f"🔍 All zero check: {np.allclose(q_values, 0.0)}")
                     
                     # Store debug info for display and logging
                     is_untrained = np.allclose(q_values, 0.0)
@@ -308,28 +382,21 @@ class BatteryManagementSystem:
                         'timestamp': datetime.now().isoformat()
                     }
                     
-                    # Optional debug output
+                    # Simple debug output - focus on Q-table existence
                     if debug:
-                        debug_color = "🔴" if is_untrained else "🟢"
-                        debug_status = "UNTRAINED STATE" if is_untrained else "TRAINED STATE"
-                        
-                        st.sidebar.markdown(f"**{debug_color} RL Agent Debug - {debug_status}**")
-                        st.sidebar.write(f"**Standardized Values:**")
-                        st.sidebar.write(f"• Temp: {telemetry['temperature']:.2f}")
-                        st.sidebar.write(f"• SoC: {telemetry['soc']:.2f}")
-                        st.sidebar.write(f"• Voltage: {telemetry.get('voltage', 0.0):.2f}")
-                        st.sidebar.write(f"**State:** {state}")
-                        st.sidebar.write(f"**Q-values:** [{q_values[0]:.3f}, {q_values[1]:.3f}, {q_values[2]:.3f}, {q_values[3]:.3f}, {q_values[4]:.3f}]")
-                        st.sidebar.write(f"**Q-sum:** {np.sum(q_values):.3f}")
-                        
+                        # Core purpose: Q-table existence check
                         if is_untrained:
-                            st.sidebar.warning("⚠️ State not encountered during training - using safety defaults")
+                            st.sidebar.warning("❌ **NEW STATE** - Q-table entry does not exist")
+                        else:
+                            st.sidebar.success("✅ **TRAINED STATE** - Q-table entry exists")
+                            st.sidebar.write(f"• Best action: {self.ACTIONS[np.argmax(q_values)]}")
                     
                     # Store debug info for logging
                     self.last_rl_debug_info = debug_info
                     
                     # Log untrained states separately for RL improvement
                     if is_untrained:
+                        print(f"🔴 UNTRAINED STATE DETECTED: {debug_info['state_index']}")
                         # Store reference to original telemetry for logging
                         if hasattr(self, 'current_raw_telemetry'):
                             self.log_untrained_rl_state(debug_info, self.current_raw_telemetry)
@@ -352,6 +419,89 @@ class BatteryManagementSystem:
                         elif temp_std > 0.5:  # Moderate temperature
                             q_values = np.array([0.4, 0.8, 0.3, 0.3, 0.7])  # Prefer slow charge/maintain
                         elif soc_std < -2.0:  # Very low SoC (<20%)
+                            q_values = np.array([0.7, 0.9, 0.2, 0.1, 0.4])  # Prefer fast/slow charging
+                        elif soc_std < -0.5:  # Low SoC
+                            q_values = np.array([0.6, 0.9, 0.2, 0.2, 0.6])  # Prefer slow charge
+                        elif soc_std > 1.5:  # High SoC (>80%)
+                            q_values = np.array([0.1, 0.2, 0.4, 0.9, 0.7])  # Prefer discharge/maintain
+                        else:  # Normal conditions
+                            q_values = np.array([0.5, 0.8, 0.3, 0.3, 0.9])  # Balanced, prefer maintain/slow charge
+                else:
+                    q_values = np.array([0.4, 0.7, 0.3, 0.3, 0.9])  # Balanced default - prefer maintain/slow charge
+            elif isinstance(q_table, list):
+                # List format (from JSON) - convert to numpy array first
+                q_table_array = np.array(q_table)
+                
+                # Debug: Show converted Q-table info
+                if debug:
+                    print(f"🔍 Converted Q-table shape: {q_table_array.shape}")
+                    print(f"🔍 Q-table dimensions: {q_table_array.ndim}D")
+                
+                # 7D array: [c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin, action]
+                c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin = state
+                if (0 <= c_rate_bin < q_table_array.shape[0] and 
+                    0 <= power_bin < q_table_array.shape[1] and 
+                    0 <= temp_bin < q_table_array.shape[2] and 
+                    0 <= soc_bin < q_table_array.shape[3] and
+                    0 <= voltage_bin < q_table_array.shape[4] and
+                    0 <= anomaly_bin < q_table_array.shape[5]):
+                    q_values = q_table_array[c_rate_bin, power_bin, temp_bin, soc_bin, voltage_bin, anomaly_bin, :]
+                    
+                    # Debug: Simple Q-table existence check (list format)
+                    if debug:
+                        print(f"🔍 Q-values retrieved (list format): {q_values}")
+                        print(f"🔍 Q-values sum: {np.sum(q_values)}")
+                        print(f"🔍 All zero check: {np.allclose(q_values, 0.0)}")
+                    
+                    # Store debug info for display and logging
+                    is_untrained = np.allclose(q_values, 0.0)
+                    debug_info = {
+                        'temp_std': telemetry['temperature'],
+                        'soc_std': telemetry['soc'],
+                        'voltage_std': telemetry.get('voltage', 0.0),
+                        'state_bins': state,
+                        'state_index': f"({c_rate_bin},{power_bin},{temp_bin},{soc_bin},{voltage_bin},{anomaly_bin})",
+                        'q_values': q_values.tolist(),
+                        'q_sum': np.sum(q_values),
+                        'is_untrained_state': is_untrained,
+                        'debug_message': "Using default Q-values (untrained state)" if is_untrained else "Using learned Q-values",
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    
+                    # Simple debug output - focus on Q-table existence (list format)
+                    if debug:
+                        # Core purpose: Q-table existence check
+                        if is_untrained:
+                            st.sidebar.warning("❌ **NEW STATE** - Q-table entry does not exist")
+                        else:
+                            st.sidebar.success("✅ **TRAINED STATE** - Q-table entry exists")
+                            st.sidebar.write(f"• Best action: {self.ACTIONS[np.argmax(q_values)]}")
+                    
+                    # Store debug info for logging
+                    self.last_rl_debug_info = debug_info
+                    
+                    # Log untrained states separately for RL improvement
+                    if is_untrained:
+                        print(f"🔴 UNTRAINED STATE DETECTED: {debug_info['state_index']}")
+                        # Store reference to original telemetry for logging
+                        if hasattr(self, 'current_raw_telemetry'):
+                            self.log_untrained_rl_state(debug_info, self.current_raw_telemetry)
+                        else:
+                            self.log_untrained_rl_state(debug_info, telemetry)
+                    
+                    # Check if all Q-values are zero (untrained state)
+                    if np.allclose(q_values, 0.0):
+                        # Smart default Q-values based on comprehensive safety rules
+                        temp_std = telemetry['temperature']
+                        soc_std = telemetry['soc']
+                        is_anomaly = telemetry.get('is_anomaly', False)
+                        
+                        # SAFETY-FIRST DEFAULT Q-VALUES (matching our training approach)
+                        if temp_std > 1.0:  # High temperature - prefer pause/slow
+                            q_values = np.array([0.2, 0.8, 0.7, 0.4, 0.5])
+                        elif is_anomaly:  # Anomaly detected - prefer pause
+                            q_values = np.array([0.1, 0.3, 0.9, 0.2, 0.4])
+                        elif soc_std < -1.0:  # Very low SoC - prefer charging
                             q_values = np.array([0.7, 0.9, 0.2, 0.1, 0.4])  # Prefer fast/slow charging
                         elif soc_std < -0.5:  # Low SoC
                             q_values = np.array([0.6, 0.9, 0.2, 0.2, 0.6])  # Prefer slow charge
@@ -421,29 +571,158 @@ class BatteryManagementSystem:
             confidence = base_confidence + uncertainty_factor + temp_factor - soc_factor
             confidence = min(0.98, max(0.32, confidence))  # Clamp to 32-98%
             
-            return action, confidence
+            # Apply climate-aware adjustments using if-else logic
+            adjusted_action, confidence_boost = self.apply_climate_aware_adjustments(action, telemetry)
+            final_confidence = min(0.98, confidence + confidence_boost)
+            
+            return adjusted_action, final_confidence
             
         except Exception as e:
             st.error(f"⚠️ RL Agent failed: {e}")
             st.error(f"   Using fallback action")
             return self.get_fallback_action(telemetry)
     
+    def apply_climate_aware_adjustments(self, base_action, telemetry):
+        """Apply climate-aware adjustments using if-else logic (20 combinations)"""
+        climate_zone = telemetry.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+        season = telemetry.get('season', 'monsoon')
+        temp = telemetry.get('temperature', 25.0)
+        soc = telemetry.get('soc', 0.5)
+        humidity = telemetry.get('humidity', 0.5)
+        
+        adjusted_action = base_action
+        confidence_boost = 0.0
+        
+        # Climate zone + Season combinations (20 total)
+        if "Hot Desert" in climate_zone:
+            if season == 'summer':
+                if temp > 40:  # Extreme heat
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'pause'
+                        confidence_boost = 0.3
+                    elif base_action == 'slow_charge':
+                        adjusted_action = 'pause'
+                        confidence_boost = 0.2
+                elif temp > 35:  # High heat
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+            elif season == 'winter':
+                if temp < 10:  # Cold conditions
+                    if base_action == 'pause' and soc < 0.3:
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+                    elif base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+        
+        elif "Tropical Monsoon" in climate_zone:
+            if season == 'monsoon':
+                if humidity > 0.8:  # High humidity
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+            elif season == 'summer':
+                if temp > 38:  # Summer heat
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+        
+        elif "Subtropical Highland" in climate_zone:
+            if season == 'winter':
+                if temp < 5:  # Cold conditions
+                    if base_action == 'pause' and soc < 0.3:
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+                    elif base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+            elif season == 'summer':
+                if temp > 35:  # Summer heat
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+        
+        elif "Tropical Savanna" in climate_zone:
+            if season == 'summer':
+                if temp > 40:  # Urban heat island
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+            elif season == 'monsoon':
+                if humidity > 0.8:  # High humidity
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+        
+        elif "Tropical Wet" in climate_zone:
+            if season == 'monsoon':
+                if humidity > 0.85:  # Very high humidity
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+            elif season == 'summer':
+                if temp > 35:  # Summer heat
+                    if base_action == 'fast_charge':
+                        adjusted_action = 'slow_charge'
+                        confidence_boost = 0.1
+        
+        # Safety overrides (regardless of climate/season)
+        if temp > 45:  # Critical temperature
+            adjusted_action = 'pause'
+            confidence_boost = 0.3
+        
+        if soc < 0.1:  # Critical low SoC
+            if adjusted_action == 'pause':
+                adjusted_action = 'slow_charge'
+                confidence_boost = 0.2
+        
+        return adjusted_action, confidence_boost
+    
     def get_fallback_action(self, telemetry):
-        """Rule-based fallback action selection"""
+        """Rule-based fallback action selection with climate awareness"""
         # Simple safety rules using STANDARDIZED values
         temp = telemetry['temperature']  # Standardized temperature
         soc = telemetry['soc']          # Standardized SoC
+        climate_zone = telemetry.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+        season = telemetry.get('season', 'monsoon')
+        humidity = telemetry.get('humidity', 0.5)
+        ambient_temp = telemetry.get('ambient_temp', 25)
         
-        # Safety first approach (adjusted for standardized data)
-        if temp > 2.0:  # Very hot (standardized)
+        # Climate-aware safety thresholds
+        temp_threshold = 2.0  # Base threshold
+        soc_threshold = -1.0  # Base threshold
+        
+        # Climate zone adjustments
+        if "Hot Desert" in climate_zone:
+            temp_threshold -= 0.5  # More sensitive in desert
+        elif "Tropical Monsoon" in climate_zone:
+            temp_threshold -= 0.3  # More sensitive in monsoon
+        elif "Subtropical Highland" in climate_zone:
+            temp_threshold += 0.5  # Less sensitive in highland
+        
+        # Season adjustments
+        if season.lower() == 'summer':
+            temp_threshold -= 0.3  # More sensitive in summer
+        elif season.lower() == 'monsoon':
+            temp_threshold -= 0.2  # More sensitive in monsoon
+        elif season.lower() == 'winter':
+            temp_threshold += 0.3  # Less sensitive in winter
+        
+        # Humidity adjustments
+        if humidity > 0.8:
+            temp_threshold -= 0.2  # More sensitive in high humidity
+        
+        # Safety first approach (climate-aware)
+        if temp > temp_threshold:  # Climate-aware hot threshold
             return 'pause', 0.9
-        elif temp > 1.0:  # Hot (standardized)
+        elif temp > (temp_threshold - 0.5):  # Climate-aware warm threshold
             return 'slow_charge', 0.7
         elif soc < -2.0:  # Very low battery (standardized)
             return 'slow_charge', 0.8
         elif soc > 2.0:  # Very full battery (standardized)
             return 'pause', 0.8
-        elif soc < -1.0:  # Low battery (standardized)
+        elif soc < soc_threshold:  # Low battery
             return 'fast_charge', 0.6
         else:  # Normal conditions
             return 'maintain', 0.5
@@ -460,6 +739,8 @@ class BatteryManagementSystem:
         ambient_temp = telemetry.get('ambient_temp', 25)
         location = telemetry.get('location', 'inland')
         charge_mode = telemetry.get('charge_mode', 'slow')
+        climate_zone = telemetry.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+        season = telemetry.get('season', 'monsoon')
         
         # Environmental health factors
         humidity_factor = self.calculate_humidity_factor(humidity)
@@ -467,20 +748,32 @@ class BatteryManagementSystem:
         monsoon_factor = self.calculate_monsoon_factor(ambient_temp)
         salinity_factor = self.calculate_salinity_factor(location)
         
+        # Climate zone specific factors
+        climate_zone_factor = self.calculate_climate_zone_factor(climate_zone, ambient_temp, humidity)
+        
+        # Season specific factors
+        season_factor = self.calculate_season_factor(season, ambient_temp, humidity)
+        
         # Charging mode impact (simplified)
         charging_factor = self.calculate_charging_mode_factor(charge_mode)
         
-        # Basic health (70% weight)
+        # Basic health (60% weight)
         basic_health = (soc_factor + temp_factor + voltage_factor) / 3
         
         # Environmental health (25% weight)
         environmental_health = (humidity_factor + heat_stress_factor + monsoon_factor + salinity_factor) / 4
         
-        # Charging health (5% weight - simplified)
+        # Climate zone health (10% weight)
+        climate_health = climate_zone_factor
+        
+        # Season health (3% weight)
+        season_health = season_factor
+        
+        # Charging health (2% weight - simplified)
         charging_health = charging_factor
         
-        # Combined BHI with simplified weighting
-        bhi = (0.7 * basic_health + 0.25 * environmental_health + 0.05 * charging_health) * 100
+        # Combined BHI with enhanced weighting
+        bhi = (0.60 * basic_health + 0.25 * environmental_health + 0.10 * climate_health + 0.03 * season_health + 0.02 * charging_health) * 100
         return max(0, min(100, bhi))
     
     def calculate_humidity_factor(self, humidity):
@@ -531,11 +824,66 @@ class BatteryManagementSystem:
         else:
             return 1.0  # Default to optimal
     
+    def calculate_climate_zone_factor(self, climate_zone, ambient_temp, humidity):
+        """Factor for climate zone impact on battery health"""
+        if "Tropical Monsoon" in climate_zone:
+            # High humidity, monsoon conditions
+            if humidity > 0.8:
+                return 0.85  # Reduced health in high humidity
+            return 0.90  # Slightly reduced in monsoon conditions
+        elif "Hot Desert" in climate_zone:
+            # Extreme heat conditions
+            if ambient_temp > 45:
+                return 0.80  # Significantly reduced in extreme heat
+            return 0.85  # Reduced in desert conditions
+        elif "Tropical Savanna" in climate_zone:
+            # Urban heat island effect
+            if ambient_temp > 40:
+                return 0.88  # Reduced in urban heat
+            return 0.95  # Good conditions
+        elif "Subtropical Highland" in climate_zone:
+            # Altitude and temperature variation
+            if ambient_temp < 10:
+                return 0.90  # Reduced in cold conditions
+            return 0.95  # Good conditions
+        elif "Tropical Wet" in climate_zone:
+            # High humidity, tropical conditions
+            if humidity > 0.85:
+                return 0.82  # Reduced in very high humidity
+            return 0.88  # Reduced in tropical conditions
+        else:
+            return 1.0  # Default optimal conditions
+    
+    def calculate_season_factor(self, season, ambient_temp, humidity):
+        """Factor for season impact on battery health"""
+        if season.lower() == 'monsoon':
+            # High humidity, reduced performance
+            if humidity > 0.8:
+                return 0.85  # Significantly reduced in monsoon
+            return 0.90  # Reduced in monsoon season
+        elif season.lower() == 'summer':
+            # Extreme heat conditions
+            if ambient_temp > 45:
+                return 0.80  # Significantly reduced in extreme heat
+            return 0.90  # Reduced in summer heat
+        elif season.lower() == 'winter':
+            # Cold conditions
+            if ambient_temp < 5:
+                return 0.88  # Reduced in very cold conditions
+            return 0.95  # Good in moderate winter
+        elif season.lower() == 'spring':
+            # Moderate conditions
+            return 1.0  # Optimal conditions
+        else:
+            return 1.0  # Default optimal conditions
+    
     def get_bhi_recommendations(self, bhi, telemetry):
         """Generate BHI-based charging recommendations for Indian conditions"""
         humidity = telemetry.get('humidity', 0.5)
         ambient_temp = telemetry.get('ambient_temp', 25)
         location = telemetry.get('location', 'inland')
+        climate_zone = telemetry.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+        season = telemetry.get('season', 'monsoon')
         
         recommendations = []
         
@@ -550,6 +898,44 @@ class BatteryManagementSystem:
             recommendations.append("🔴 Poor health - Trickle charge only")
         else:
             recommendations.append("🚨 Critical health - Stop charging, check battery")
+        
+        # Climate zone specific recommendations
+        if "Tropical Monsoon" in climate_zone:
+            recommendations.append("🌧️ Monsoon zone - High humidity protection needed")
+            if humidity > 0.8:
+                recommendations.append("💧 Extreme humidity - Use moisture barriers")
+        elif "Hot Desert" in climate_zone:
+            recommendations.append("🔥 Desert zone - Extreme heat management required")
+            if ambient_temp > 45:
+                recommendations.append("🌡️ Critical heat - Use thermal cooling systems")
+        elif "Tropical Savanna" in climate_zone:
+            recommendations.append("🏙️ Urban zone - Heat island effect monitoring")
+            if ambient_temp > 40:
+                recommendations.append("🌡️ Urban heat - Use shade and cooling")
+        elif "Subtropical Highland" in climate_zone:
+            recommendations.append("⛰️ Highland zone - Altitude effects monitoring")
+            if ambient_temp < 10:
+                recommendations.append("❄️ Cold conditions - Use battery warming")
+        elif "Tropical Wet" in climate_zone:
+            recommendations.append("🌧️ Wet zone - High humidity and rainfall protection")
+            if humidity > 0.85:
+                recommendations.append("💧 Very high humidity - Extra moisture protection")
+        
+        # Season specific recommendations
+        if season.lower() == 'monsoon':
+            recommendations.append("🌦️ Monsoon season - Extra moisture protection needed")
+            if humidity > 0.8:
+                recommendations.append("🌧️ Heavy monsoon - Use waterproof covers")
+        elif season.lower() == 'summer':
+            recommendations.append("☀️ Summer season - Heat stress management")
+            if ambient_temp > 45:
+                recommendations.append("🌡️ Extreme summer heat - Use thermal management")
+        elif season.lower() == 'winter':
+            recommendations.append("❄️ Winter season - Cold weather protection")
+            if ambient_temp < 5:
+                recommendations.append("🧊 Very cold - Use battery warming systems")
+        elif season.lower() == 'spring':
+            recommendations.append("🌸 Spring season - Moderate conditions, standard care")
         
         # India-specific environmental recommendations
         if humidity > 0.8:
@@ -649,35 +1035,43 @@ class BatteryManagementSystem:
         }
     
     def get_action_reason(self, telemetry, anomaly_predictions, rl_action, rl_confidence, safety_status):
-        """Generate explanation for RL agent action"""
+        """Generate explanation for RL agent action with climate awareness"""
         temp = telemetry['temperature']
         soc = telemetry['soc']
+        climate_zone = telemetry.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
+        season = telemetry.get('season', 'monsoon')
         ensemble_prob = anomaly_predictions.get('ensemble', {}).get('probability', 0.5)
+        
+        # Climate-aware context
+        climate_context = f"({climate_zone.split('(')[0].strip()}, {season.title()})"
         
         # Determine primary reason for action
         if ensemble_prob > 0.8:
-            return f"High anomaly detected ({ensemble_prob*100:.1f}%) - Safety protocol: {rl_action}"
+            return f"High anomaly detected ({ensemble_prob*100:.1f}%) - Safety protocol: {rl_action} {climate_context}"
         elif temp > 45:
-            return f"Critical temperature ({temp:.1f}°C) - Emergency action: {rl_action}"
+            return f"Critical temperature ({temp:.1f}°C) - Emergency action: {rl_action} {climate_context}"
         elif soc < 0.1:
-            return f"Critical low SoC ({soc*100:.1f}%) - Urgent charging: {rl_action}"
+            return f"Critical low SoC ({soc*100:.1f}%) - Urgent charging: {rl_action} {climate_context}"
         elif soc > 0.9:
-            return f"Battery nearly full ({soc*100:.1f}%) - Reduce charging: {rl_action}"
+            return f"Battery nearly full ({soc*100:.1f}%) - Reduce charging: {rl_action} {climate_context}"
         elif rl_confidence < 0.5:
-            return f"Low confidence ({rl_confidence*100:.0f}%) - Conservative action: {rl_action}"
+            return f"Low confidence ({rl_confidence*100:.0f}%) - Conservative action: {rl_action} {climate_context}"
         elif temp > 35:
-            return f"Elevated temperature ({temp:.1f}°C) - Thermal management: {rl_action}"
+            return f"Elevated temperature ({temp:.1f}°C) - Thermal management: {rl_action} {climate_context}"
         elif soc < 0.2:
-            return f"Low SoC ({soc*100:.1f}%) - Charging recommended: {rl_action}"
+            return f"Low SoC ({soc*100:.1f}%) - Charging recommended: {rl_action} {climate_context}"
         elif ensemble_prob > 0.6:
-            return f"Moderate anomaly risk ({ensemble_prob*100:.1f}%) - Cautious action: {rl_action}"
+            return f"Moderate anomaly risk ({ensemble_prob*100:.1f}%) - Cautious action: {rl_action} {climate_context}"
         else:
-            return f"Normal conditions - Optimal action: {rl_action} (confidence: {rl_confidence*100:.0f}%)"
+            return f"Normal conditions - Optimal action: {rl_action} (confidence: {rl_confidence*100:.0f}%) {climate_context}"
     
     def log_untrained_rl_state(self, debug_info, telemetry):
         """Log untrained RL states separately for targeted training improvement"""
         import json
         from datetime import datetime
+        
+        # Debug: Print to console when log_untrained_rl_state is called
+        print(f"📝 log_untrained_rl_state called with state: {debug_info.get('state_index', 'unknown')}")
         
         try:
             untrained_entry = {
@@ -740,12 +1134,14 @@ class BatteryManagementSystem:
                 with open(untrained_file, 'w') as f:
                     json.dump(untrained_states, f, indent=2, ensure_ascii=False)
                     f.flush()  # Ensure data is written
+                pass  # Successfully logged
             else:
                 # State already exists, skip logging (no file I/O)
                 pass
                     
         except Exception as e:
-            # Fail silently to not interrupt dashboard
+            # Log error message instead of failing silently
+            print(f"⚠️ Not saving the logs: Failed to save untrained RL state - {str(e)}")
             pass
 
     def log_prediction_data(self, telemetry, features, anomaly_predictions, rl_action, rl_confidence, safety_status, action_reason=None, critical_count=0, warning_count=0, adaptive_thresholds=None, bhi=None):
@@ -769,7 +1165,8 @@ class BatteryManagementSystem:
                 'humidity': telemetry['humidity'],
                 'charge_mode': telemetry['charge_mode'],
                 'climate_zone': telemetry.get('climate_zone', 'unknown'),  # Enhanced logging
-                'location': telemetry.get('location', 'unknown'),
+                'location': telemetry.get('location', 'unknown'),  # Actual city name
+                'location_type': telemetry.get('location_type', 'unknown'),  # Climate zone type
                 'season': telemetry.get('season', 'unknown'),
                 'scenario': telemetry.get('scenario', 'Unknown')
             },
@@ -852,7 +1249,8 @@ class BatteryManagementSystem:
                 json.dump(logs, f, indent=2)
                 
         except Exception as e:
-            # Fail silently to not interrupt dashboard
+            # Log error message instead of failing silently
+            print(f"⚠️ Not saving the logs: Failed to save prediction data - {str(e)}")
             pass
     
     def assess_safety(self, telemetry, anomaly_prob):
@@ -908,20 +1306,8 @@ def generate_synthetic_telemetry():
     # Get climate context from session state
     climate_zone = st.session_state.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)')
     charge_mode = st.session_state.get('charge_mode', 'slow')
-    
-    # Extract location from climate zone
-    if "Tropical Monsoon" in climate_zone:
-        location = "tropical_monsoon"
-    elif "Hot Desert" in climate_zone:
-        location = "hot_desert"
-    elif "Tropical Savanna" in climate_zone:
-        location = "tropical_savanna"
-    elif "Subtropical Highland" in climate_zone:
-        location = "subtropical_highland"
-    elif "Tropical Wet" in climate_zone:
-        location = "tropical_wet"
-    else:
-        location = "inland"
+    location_type = st.session_state.get('location_type', 'tropical_monsoon')
+    season = st.session_state.get('season', 'monsoon')
     
     telemetry = {
         'timestamp': base_time,
@@ -933,8 +1319,9 @@ def generate_synthetic_telemetry():
         'humidity': np.random.uniform(0.3, 0.8),
         'charge_mode': charge_mode,  # Use stored charge mode
         'climate_zone': climate_zone,  # Use stored climate zone
-        'location': location,  # Use extracted location
-        'season': np.random.choice(['summer', 'monsoon', 'winter', 'spring']),
+        'location': location_type,  # Use climate zone type
+        'location_type': location_type,  # Use climate zone type for processing
+        'season': season,  # Use selected season
         'scenario': scenario['name'],
         'time_since_start': len(st.session_state.telemetry_data) * 5  # 5 seconds per reading
     }
@@ -957,9 +1344,15 @@ def main():
     debug_rl = st.sidebar.checkbox("🔧 Debug RL Agent", value=False, 
                                    help="Show RL agent internal state, Q-values, and identify untrained states. Debug info is also logged for training improvements.")
     
+    # Debug mode indicator (simple display)
+    if debug_rl:
+        st.sidebar.info("🔧 Debug mode is ACTIVE")
+    
+    # Debug mode is handled dynamically in the main processing loop
+    
     # Test critical conditions button
     if st.sidebar.button("🧪 Test Critical Conditions"):
-        # Generate critical test telemetry
+        # Generate critical test telemetry using selected climate zone
         critical_telemetry = {
             'timestamp': datetime.now(),
             'voltage': 3.0,  # Critical low voltage
@@ -970,8 +1363,9 @@ def main():
             'humidity': 0.9,    # High humidity
             'charge_mode': st.session_state.get('charge_mode', 'fast'),
             'climate_zone': st.session_state.get('climate_zone', 'Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)'),
-            'location': 'tropical_monsoon',
-            'season': 'monsoon',
+            'location': st.session_state.get('location_type', 'tropical_monsoon'),
+            'location_type': st.session_state.get('location_type', 'tropical_monsoon'),
+            'season': st.session_state.get('season', 'monsoon'),
             'scenario': 'Test Critical Conditions - India Enhanced',
             'time_since_start': len(st.session_state.telemetry_data) * 5
         }
@@ -995,66 +1389,49 @@ def main():
         # Force page refresh to show results
         st.rerun()
     
-    # Show logging status with file info
-    log_file = Path("prediction_validation_log.json")
-    if log_file.exists():
-        try:
-            with open(log_file, 'r') as f:
-                logs = json.load(f)
-            log_count = len(logs)
-            file_size = log_file.stat().st_size / 1024  # Size in KB
-            
-            # Check dedicated untrained states file
-            untrained_file = Path("rl_untrained_states.json")
-            untrained_count = 0
-            untrained_file_size = 0
-            
-            if untrained_file.exists():
-                try:
-                    with open(untrained_file, 'r') as f:
-                        untrained_states = json.load(f)
-                    untrained_count = len(untrained_states)
-                    untrained_file_size = untrained_file.stat().st_size / 1024  # Size in KB
-                except:
-                    untrained_count = 0
-            
-            status_text = f"📝 **Continuous Logging**: Active\n\n{log_count:,} entries logged ({file_size:.1f} KB)"
-            if untrained_count > 0:
-                status_text += f"\n\n🔴 **Untrained RL States**: {untrained_count:,} unique states ({untrained_file_size:.1f} KB)\n📁 `rl_untrained_states.json`"
-                if untrained_count >= 10:  # Suggest retraining after collecting enough states
-                    status_text += f"\n\n💡 **Ready for RL Improvement!**\nRun: `python scripts/retrain_rl_from_untrained_states.py`"
-            status_text += f"\n\nAll predictions saved to `prediction_validation_log.json`"
-            
-            st.sidebar.info(status_text)
-        except:
-            st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
-    else:
-        st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
     
-    with st.sidebar.expander("ℹ️ How Data Processing Works"):
-        st.write("""
-        **🔄 Real-World to AI Models:**
-        
-        1. **Input**: You provide real values (e.g., 35°C, 60% SoC)
-        2. **Feature Engineering**: System calculates 16 features (power, ratios, gradients)
-        3. **Standardization**: Features normalized to mean=0, std=1 (training format)
-        4. **AI Prediction**: Models trained on 5.3M standardized samples
-        5. **Output**: Human-readable results and recommendations
-        
-        **🤖 RL Agent Thresholds:**
-        - Trained on standardized data (-3 to +3 range)
-        - Automatically converted to real-world values for display
-        - Safety decisions based on NASA battery dataset patterns
-        """)
-        
-        if hasattr(bms, 'transformer'):
-            thresholds = bms.transformer.get_rl_thresholds_in_real_world()
-            st.write("**Current Safety Limits:**")
-            for key, value in thresholds.items():
-                if 'temp' in key:
-                    st.write(f"• {key}: {value:.1f}°C")
-                elif 'soc' in key:
-                    st.write(f"• {key}: {value:.0f}%")
+    # Climate zone and season selection (always available for BHI calculations)
+    st.sidebar.subheader("🌍 Climate & Season Selection")
+    climate_zone = st.sidebar.selectbox(
+        "Select Climate Zone",
+        [
+            "Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)",
+            "Hot Desert (Rajasthan, Gujarat, Punjab)", 
+            "Tropical Savanna (Delhi, Bangalore, Hyderabad)",
+            "Subtropical Highland (Shimla, Kashmir, Himachal)",
+            "Tropical Wet (Kerala, Assam, Meghalaya)"
+        ],
+        help="Select climate zone for BHI calculations, adaptive safety thresholds, and system behavior"
+    )
+    
+    season = st.sidebar.selectbox(
+        "Select Season",
+        ["summer", "monsoon", "winter", "spring"],
+        help="Seasonal impact on battery health (monsoon = high humidity, summer = extreme heat)"
+    )
+    
+    # Store climate zone and season in session state
+    st.session_state.climate_zone = climate_zone
+    st.session_state.season = season
+    
+    # Extract location type for processing
+    if "Tropical Monsoon" in climate_zone:
+        location_type = "tropical_monsoon"
+    elif "Hot Desert" in climate_zone:
+        location_type = "hot_desert"
+    elif "Tropical Savanna" in climate_zone:
+        location_type = "tropical_savanna"
+    elif "Subtropical Highland" in climate_zone:
+        location_type = "subtropical_highland"
+    elif "Tropical Wet" in climate_zone:
+        location_type = "tropical_wet"
+    else:
+        location_type = "inland"
+    
+    # Store location type for processing
+    st.session_state.location_type = location_type
+    
+    # Debug: No climate zone and season display
     
     # System status
     if st.sidebar.button("🚀 Start System" if not st.session_state.system_running else "⏹️ Stop System"):
@@ -1063,15 +1440,13 @@ def main():
         if st.session_state.system_running:
             # Show immediate feedback when starting
             st.sidebar.success("🚀 System started! Generating telemetry...")
-            st.sidebar.info("📊 Climate Zone: " + st.session_state.get('climate_zone', 'Tropical Monsoon'))
-            st.sidebar.info("⚡ Charge Mode: " + st.session_state.get('charge_mode', 'slow'))
             st.sidebar.write("**Next Steps:**")
             st.sidebar.write("• Watch the main dashboard for real-time data")
             st.sidebar.write("• Telemetry will be generated every 2 seconds")
             st.sidebar.write("• AI models will analyze each reading")
             st.sidebar.write("• RL agent will provide recommendations")
         else:
-            st.sidebar.info("⏹️ System stopped")
+            st.rerun()  # Force page rerun to update the button text
     
     # Manual telemetry input
     st.sidebar.subheader("📊 Manual Input")
@@ -1094,41 +1469,10 @@ def main():
         humidity = st.sidebar.slider("Humidity (%)", 0, 100, 50, 5, 
                                     help="Relative humidity (🌧️ >80% = monsoon conditions)") / 100
         
-        st.sidebar.write("**🇮🇳 India Climate Zone:**")
-        climate_zone = st.sidebar.selectbox(
-            "Climate Zone",
-            [
-                "Tropical Monsoon (Mumbai, Kolkata, Chennai, Goa)",
-                "Hot Desert (Rajasthan, Gujarat, Punjab)", 
-                "Tropical Savanna (Delhi, Bangalore, Hyderabad)",
-                "Subtropical Highland (Shimla, Kashmir, Himachal)",
-                "Tropical Wet (Kerala, Assam, Meghalaya)"
-            ],
-            help="Select climate zone for adaptive safety thresholds"
-        )
-        
-        # Store climate zone in session state for system mode
-        st.session_state.climate_zone = climate_zone
-        
-        # Extract zone name for processing
-        if "Tropical Monsoon" in climate_zone:
-            location = "tropical_monsoon"
-        elif "Hot Desert" in climate_zone:
-            location = "hot_desert"
-        elif "Tropical Savanna" in climate_zone:
-            location = "tropical_savanna"
-        elif "Subtropical Highland" in climate_zone:
-            location = "subtropical_highland"
-        elif "Tropical Wet" in climate_zone:
-            location = "tropical_wet"
-        else:
-            location = "inland"
-        
-        season = st.sidebar.selectbox(
-            "Season",
-            ["summer", "monsoon", "winter", "spring"],
-            help="Seasonal impact on battery health (monsoon = high humidity)"
-        )
+        # Use the climate zone and season selected at the top
+        climate_zone = st.session_state.climate_zone
+        location = st.session_state.location_type
+        season = st.session_state.season
         
         # Removed charging station input to simplify the interface
         # Climate zone and charging mode are sufficient for safety assessment
@@ -1183,6 +1527,50 @@ def main():
             }
             st.session_state.telemetry_data.append(telemetry)
     
+    # Logging status and data processing info (positioned after manual telemetry)
+    st.sidebar.subheader("📊 Logging & Data Processing")
+    
+    # Show logging status with file info
+    log_file = Path("prediction_validation_log.json")
+    if log_file.exists():
+        try:
+            with open(log_file, 'r') as f:
+                logs = json.load(f)
+            log_count = len(logs)
+            file_size = log_file.stat().st_size / 1024  # Size in KB
+            
+            # Check dedicated untrained states file
+            untrained_file = Path("rl_untrained_states.json")
+            untrained_count = 0
+            untrained_file_size = 0
+            
+            if untrained_file.exists():
+                try:
+                    with open(untrained_file, 'r') as f:
+                        untrained_states = json.load(f)
+                    untrained_count = len(untrained_states)
+                    untrained_file_size = untrained_file.stat().st_size / 1024  # Size in KB
+                except:
+                    untrained_count = 0
+            
+            status_text = f"📝 **Continuous Logging**: Active\n\n{log_count:,} entries logged ({file_size:.1f} KB)"
+            
+            # Always show untrained states information
+            status_text += f"\n\n🔴 **Untrained RL States**: {untrained_count:,} unique states ({untrained_file_size:.1f} KB)\n📁 `rl_untrained_states.json`"
+            if untrained_count >= 10:  # Suggest retraining after collecting enough states
+                status_text += f"\n\n💡 **Ready for RL Improvement!**\nRun: `python scripts/fine_tune_from_logs.py`"
+            elif untrained_count == 0:
+                status_text += f"\n\n✅ **Fresh Start**: Ready to collect new untrained states"
+            
+            status_text += f"\n\nAll predictions saved to `prediction_validation_log.json`"
+            
+            st.sidebar.info(status_text)
+        except:
+            st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
+    else:
+        st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
+    
+    
     # Auto-generate telemetry
     if st.session_state.system_running and not manual_mode:
         if len(st.session_state.telemetry_data) == 0 or \
@@ -1217,7 +1605,16 @@ def main():
         
         # Store raw telemetry for untrained state logging
         bms.current_raw_telemetry = current_telemetry
+        
+        # Debug: Show when RL agent is called (only when debug is enabled)
+        if debug_rl:
+            pass  # No debug message for RL agent call
+        
         rl_action, rl_confidence = bms.get_rl_action(standardized_telemetry, debug_rl)
+        
+        # Debug: Show RL agent result (only when debug is enabled)
+        if debug_rl:
+            st.sidebar.write(f"🎯 **RL Agent Decision:** {rl_action} (confidence: {rl_confidence:.2f})")
         # Calculate Enhanced BHI with India-specific factors
         bhi = bms.calculate_bhi(current_telemetry)
         
@@ -1584,16 +1981,16 @@ def main():
             for _ in range(current_warning):
                 st.session_state.alert_history["warning"].append(f"{current_time}: Warning alert")
         
-        # Debug: Show what conditions are being checked
+        # Debug: Show what conditions are being checked (collapsible)
         if debug_rl:
-            st.sidebar.write("**🔍 Condition Debug:**")
-            st.sidebar.write(f"Safety Status: {safety_status}")
-            st.sidebar.write(f"Ensemble Prob: {ensemble_prob:.3f} (>0.8: {ensemble_prob > 0.8})")
-            st.sidebar.write(f"Temp: {current_telemetry['temperature']:.1f}°C (>40°C: {current_telemetry['temperature'] > 40})")
-            st.sidebar.write(f"SoC: {current_telemetry['soc']*100:.1f}% (<15%: {current_telemetry['soc'] < 0.15})")
-            st.sidebar.write(f"Voltage: {current_telemetry['voltage']:.2f}V (<3.2V: {current_telemetry['voltage'] < 3.2})")
-            st.sidebar.write(f"Current Critical: {current_critical}")
-            st.sidebar.write(f"Current Warning: {current_warning}")
+            with st.sidebar.expander("🔍 Condition Debug", expanded=False):
+                st.write(f"Safety Status: {safety_status}")
+                st.write(f"Ensemble Prob: {ensemble_prob:.3f} (>0.8: {ensemble_prob > 0.8})")
+                st.write(f"Temp: {current_telemetry['temperature']:.1f}°C (>40°C: {current_telemetry['temperature'] > 40})")
+                st.write(f"SoC: {current_telemetry['soc']*100:.1f}% (<15%: {current_telemetry['soc'] < 0.15})")
+                st.write(f"Voltage: {current_telemetry['voltage']:.2f}V (<3.2V: {current_telemetry['voltage'] < 3.2})")
+                st.write(f"Current Critical: {current_critical}")
+                st.write(f"Current Warning: {current_warning}")
         
         # Keep only recent alerts (last 10 of each type)
         st.session_state.alert_history["critical"] = st.session_state.alert_history["critical"][-10:]
@@ -1602,19 +1999,19 @@ def main():
         if current_critical == 0 and current_warning == 0:
             st.success("✅ All systems operating normally")
         
-        # Debug information (can be removed later)
-        if debug_rl:  # Reuse the debug toggle
-            st.sidebar.write("**🔍 Alert Debug Info:**")
-            st.sidebar.write(f"Accumulated Critical: {accumulated_critical}")
-            st.sidebar.write(f"Current Critical: {current_critical}")
-            st.sidebar.write(f"Critical Delta: {critical_delta}")
-            st.sidebar.write(f"Accumulated Warning: {accumulated_warning}")
-            st.sidebar.write(f"Current Warning: {current_warning}")
-            st.sidebar.write(f"Warning Delta: {warning_delta}")
-        
         # Calculate deltas for proper change tracking
         critical_delta = current_critical  # Show current alerts as delta
         warning_delta = current_warning    # Show current alerts as delta
+        
+        # Debug information (can be removed later) - collapsible
+        if debug_rl:  # Reuse the debug toggle
+            with st.sidebar.expander("🔍 Alert Debug Info", expanded=False):
+                st.write(f"Accumulated Critical: {accumulated_critical}")
+                st.write(f"Current Critical: {current_critical}")
+                st.write(f"Critical Delta: {critical_delta}")
+                st.write(f"Accumulated Warning: {accumulated_warning}")
+                st.write(f"Current Warning: {current_warning}")
+                st.write(f"Warning Delta: {warning_delta}")
         
         # Dynamic summary with deltas
         total_critical = len(st.session_state.alert_history["critical"])
@@ -1690,6 +2087,32 @@ def main():
         - Multi-model ensemble approach
         - Production-ready performance
         """)
+    
+    # How Data Processing Works (moved to bottom)
+    with st.sidebar.expander("ℹ️ How Data Processing Works"):
+        st.write("""
+        **🔄 Real-World to AI Models:**
+        
+        1. **Input**: You provide real values (e.g., 35°C, 60% SoC)
+        2. **Feature Engineering**: System calculates 16 features (power, ratios, gradients)
+        3. **Standardization**: Features normalized to mean=0, std=1 (training format)
+        4. **AI Prediction**: Models trained on 5.3M standardized samples
+        5. **Output**: Human-readable results and recommendations
+        
+        **🤖 RL Agent Thresholds:**
+        - Trained on standardized data (-3 to +3 range)
+        - Automatically converted to real-world values for display
+        - Safety decisions based on NASA battery dataset patterns
+        """)
+        
+        if hasattr(bms, 'transformer'):
+            thresholds = bms.transformer.get_rl_thresholds_in_real_world()
+            st.write("**Current Safety Limits:**")
+            for key, value in thresholds.items():
+                if 'temp' in key:
+                    st.write(f"• {key}: {value:.1f}°C")
+                elif 'soc' in key:
+                    st.write(f"• {key}: {value:.0f}%")
     
     # Auto-refresh for real-time updates
     if st.session_state.system_running:
