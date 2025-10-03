@@ -52,6 +52,8 @@ if "charge_mode" not in st.session_state:
     st.session_state.charge_mode = "slow"
 if "location" not in st.session_state:
     st.session_state.location = "Mumbai"
+if "logging_working" not in st.session_state:
+    st.session_state.logging_working = None  # Unknown state initially
 
 class BatteryManagementSystem:
     def __init__(self, models_dir="models"):
@@ -1267,6 +1269,8 @@ class BatteryManagementSystem:
         
         if not write_access:
             print("⚠️ Logging disabled: No file system access (Streamlit Cloud)")
+            # Set session state flag to indicate logging is not working
+            st.session_state.logging_working = False
             return
             
         try:
@@ -1284,14 +1288,15 @@ class BatteryManagementSystem:
             # Add new entry
             logs.append(log_entry)
             
-            # Optional: Keep only last 1000 entries to prevent excessive file size
-            # (You can remove this limit if you want unlimited logging)
-            if len(logs) > 1000:
-                logs = logs[-1000:]
+            # Keep all entries for comprehensive logging
+            # (No limit - allows unlimited logging for better analysis)
             
             # Write back to file
             with open(log_file, 'w') as f:
                 json.dump(logs, f, indent=2)
+            
+            # Set session state flag to indicate logging is working
+            st.session_state.logging_working = True
                 
         except Exception as e:
             # Log error message instead of failing silently
@@ -1578,7 +1583,27 @@ def main():
     # Show logging status with file info
     log_file = Path("prediction_validation_log.json")
     
-    # Test if we can actually write to files (Streamlit Cloud detection)
+    # Import time module at the top
+    import time
+    
+    # Smart detection: Check if we're in Streamlit Cloud vs Local
+    is_streamlit_cloud = False
+    try:
+        # Check for Streamlit Cloud environment variables
+        import os
+        cloud_indicators = [
+            os.getenv('STREAMLIT_CLOUD'),
+            'streamlit.app' in os.getenv('_', ''),
+            'streamlit.app' in os.getenv('HOSTNAME', ''),
+            os.getenv('STREAMLIT_SERVER_PORT') == '8501',
+            'streamlit' in os.getenv('PATH', '').lower() and 'cloud' in os.getenv('PATH', '').lower()
+        ]
+        if any(cloud_indicators):
+            is_streamlit_cloud = True
+    except:
+        pass
+    
+    # Test if we can actually write to files
     try:
         test_file = Path("test_logging_access.json")
         with open(test_file, 'w') as f:
@@ -1588,11 +1613,20 @@ def main():
     except Exception:
         can_write = False
     
-    if not can_write:
-        # Streamlit Cloud or no write access
+    # Check if logging is actually working
+    if hasattr(st.session_state, 'logging_working') and not st.session_state.logging_working:
+        # Logging was attempted but failed - only show cloud message if actually in cloud
+        if is_streamlit_cloud:
+            st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
+        else:
+            st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **File Access Issue**: Cannot write to log files\n\n💡 **Check Permissions**: Ensure write access to current directory")
+    elif not can_write and is_streamlit_cloud:
+        # Only show cloud message if we're actually in Streamlit Cloud
         st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
+    elif not can_write and not is_streamlit_cloud:
+        # Local environment but can't write - different message
+        st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **File Access Issue**: Cannot write to log files\n\n💡 **Check Permissions**: Ensure write access to current directory")
     elif log_file.exists():
-        import time
         file_age = time.time() - log_file.stat().st_mtime
         
         if file_age > 300:  # 5 minutes - file is old
@@ -1649,8 +1683,11 @@ def main():
                 st.sidebar.warning(f"⚠️ Error reading log files: {e}")
                 st.sidebar.info("📝 **Continuous Logging**: Active (file size increasing)")
     else:
-        # No log file exists - show appropriate message
-        st.sidebar.info("📝 **Logging**: Ready\n\n💡 **Local Development**: Logging will start when system runs\n\n⚠️ **Cloud Environment**: Logging may not be available")
+        # No log file exists - show appropriate message based on environment
+        if is_streamlit_cloud:
+            st.sidebar.info("📝 **Logging**: Ready\n\n💡 **Local Development**: Logging will start when system runs\n\n⚠️ **Cloud Environment**: Logging may not be available")
+        else:
+            st.sidebar.info("📝 **Logging**: Ready\n\n💡 **Local Development**: Logging will start when system runs\n\n✅ **Environment**: Local development - full logging available")
     
     
     # Auto-generate telemetry
