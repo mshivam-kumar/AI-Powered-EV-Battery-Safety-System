@@ -1082,8 +1082,7 @@ class BatteryManagementSystem:
         import json
         from datetime import datetime
         
-        # Debug: Print to console when log_untrained_rl_state is called
-        print(f"📝 log_untrained_rl_state called with state: {debug_info.get('state_index', 'unknown')}")
+        # Log untrained RL state for fine-tuning
         
         try:
             untrained_entry = {
@@ -1271,37 +1270,28 @@ class BatteryManagementSystem:
             return
             
         try:
-            # Debug: Print when logging is called
-            print(f"📝 Logging prediction data to {log_file}")
-            
             # Load existing logs if file exists
             if log_file.exists():
                 try:
                     with open(log_file, 'r') as f:
                         logs = json.load(f)
-                    print(f"📊 Loaded {len(logs)} existing entries")
                 except (json.JSONDecodeError, Exception):
                     # If file is corrupted or empty, start fresh
                     logs = []
-                    print("⚠️ Log file corrupted, starting fresh")
             else:
                 logs = []
-                print("📄 Creating new log file")
             
             # Add new entry
             logs.append(log_entry)
-            print(f"📝 Added new entry, total: {len(logs)}")
             
             # Optional: Keep only last 1000 entries to prevent excessive file size
             # (You can remove this limit if you want unlimited logging)
             if len(logs) > 1000:
                 logs = logs[-1000:]
-                print("📊 Trimmed to last 1000 entries")
             
             # Write back to file
             with open(log_file, 'w') as f:
                 json.dump(logs, f, indent=2)
-            print(f"✅ Successfully saved {len(logs)} entries to {log_file}")
                 
         except Exception as e:
             # Log error message instead of failing silently
@@ -1600,61 +1590,64 @@ def main():
     
     if not write_access:
         # Streamlit Cloud or no write access
-        st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n💡 **Local Development**: Logging works in local environment")
-    elif log_file.exists():
-        try:
-            with open(log_file, 'r') as f:
-                content = f.read().strip()
-                if content:
-                    logs = json.loads(content)
-                    log_count = len(logs)
-                else:
-                    log_count = 0
-            file_size = log_file.stat().st_size / 1024  # Size in KB
-            
-            # Check dedicated untrained states file
-            untrained_file = Path("rl_untrained_states.json")
-            untrained_count = 0
-            untrained_file_size = 0
-            
-            if untrained_file.exists():
-                try:
-                    with open(untrained_file, 'r') as f:
-                        content = f.read().strip()
-                        if content:
-                            untrained_states = json.loads(content)
-                            untrained_count = len(untrained_states)
-                        else:
-                            untrained_count = 0
-                    untrained_file_size = untrained_file.stat().st_size / 1024  # Size in KB
-                except Exception as e:
-                    untrained_count = 0
-                    print(f"⚠️ Error reading untrained states: {e}")
-            
-            status_text = f"📝 **Continuous Logging**: Active\n\n{log_count:,} entries logged ({file_size:.1f} KB)"
-            
-            # Debug: Show file reading status
-            if st.session_state.get('debug_mode', False):
-                status_text += f"\n\n🔍 **Debug Info**:\n- Log file exists: ✅\n- File size: {file_size:.1f} KB\n- JSON entries: {log_count:,}"
-            
-            # Always show untrained states information
-            status_text += f"\n\n🔴 **Untrained RL States**: {untrained_count:,} unique states ({untrained_file_size:.1f} KB)\n📁 `rl_untrained_states.json`"
-            if untrained_count >= 10:  # Suggest retraining after collecting enough states
-                status_text += f"\n\n💡 **Ready for RL Improvement!**\nRun: `python scripts/fine_tune_from_logs.py`"
-            elif untrained_count == 0:
-                status_text += f"\n\n✅ **Fresh Start**: Ready to collect new untrained states"
-            
-            status_text += f"\n\nAll predictions saved to `prediction_validation_log.json`"
-            
-            st.sidebar.info(status_text)
-            
-            # Add refresh button for debugging
-            if st.sidebar.button("🔄 Refresh Log Count", help="Click to refresh the log counter"):
-                st.rerun()
+        st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
+    elif log_file.exists() and write_access:
+        # Check if file was recently modified (within last 5 minutes) to ensure it's actively being written
+        import time
+        file_age = time.time() - log_file.stat().st_mtime
+        if file_age > 300:  # 5 minutes
+            st.sidebar.info("📝 **Logging**: Inactive\n\n⏰ **Last Update**: " + 
+                          f"{int(file_age/60)} minutes ago\n\n💡 **Local Development**: Logging works in local environment")
+        else:
+            try:
+                with open(log_file, 'r') as f:
+                    content = f.read().strip()
+                    if content:
+                        logs = json.loads(content)
+                        log_count = len(logs)
+                    else:
+                        log_count = 0
+                file_size = log_file.stat().st_size / 1024  # Size in KB
                 
-        except Exception as e:
-            st.sidebar.warning(f"⚠️ Error reading log files: {e}")
-            st.sidebar.info("📝 **Continuous Logging**: Active (file size increasing)")
+                # Check dedicated untrained states file
+                untrained_file = Path("rl_untrained_states.json")
+                untrained_count = 0
+                untrained_file_size = 0
+                
+                if untrained_file.exists():
+                    try:
+                        with open(untrained_file, 'r') as f:
+                            content = f.read().strip()
+                            if content:
+                                untrained_states = json.loads(content)
+                                untrained_count = len(untrained_states)
+                            else:
+                                untrained_count = 0
+                        untrained_file_size = untrained_file.stat().st_size / 1024  # Size in KB
+                    except Exception as e:
+                        untrained_count = 0
+                        print(f"⚠️ Error reading untrained states: {e}")
+                
+                status_text = f"📝 **Continuous Logging**: Active\n\n{log_count:,} entries logged ({file_size:.1f} KB)"
+                
+                # Debug: Show file reading status
+                if st.session_state.get('debug_mode', False):
+                    status_text += f"\n\n🔍 **Debug Info**:\n- Log file exists: ✅\n- File size: {file_size:.1f} KB\n- JSON entries: {log_count:,}"
+                
+                # Always show untrained states information
+                status_text += f"\n\n🔴 **Untrained RL States**: {untrained_count:,} unique states ({untrained_file_size:.1f} KB)\n📁 `rl_untrained_states.json`"
+                if untrained_count >= 10:  # Suggest retraining after collecting enough states
+                    status_text += f"\n\n💡 **Ready for RL Improvement!**\nRun: `python scripts/fine_tune_from_logs.py`"
+                elif untrained_count == 0:
+                    status_text += f"\n\n✅ **Fresh Start**: Ready to collect new untrained states"
+                
+                status_text += f"\n\nAll predictions saved to `prediction_validation_log.json`"
+                
+                st.sidebar.info(status_text)
+                    
+            except Exception as e:
+                st.sidebar.warning(f"⚠️ Error reading log files: {e}")
+                st.sidebar.info("📝 **Continuous Logging**: Active (file size increasing)")
     else:
         st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
     
