@@ -1578,8 +1578,20 @@ def main():
     # Show logging status with file info
     log_file = Path("prediction_validation_log.json")
     
-    # Simple check: Just see if log files exist and are recent
-    if log_file.exists():
+    # Test if we can actually write to files (Streamlit Cloud detection)
+    try:
+        test_file = Path("test_logging_access.json")
+        with open(test_file, 'w') as f:
+            f.write('{"test": "data"}')
+        test_file.unlink()  # Delete test file
+        can_write = True
+    except Exception:
+        can_write = False
+    
+    if not can_write:
+        # Streamlit Cloud or no write access
+        st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
+    elif log_file.exists():
         import time
         file_age = time.time() - log_file.stat().st_mtime
         
