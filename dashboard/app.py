@@ -1578,57 +1578,23 @@ def main():
     # Show logging status with file info
     log_file = Path("prediction_validation_log.json")
     
-    # Test if we can write to the current directory (Streamlit Cloud detection)
-    try:
-        test_file = Path("test_write_access.tmp")
-        with open(test_file, 'w') as f:
-            f.write("test")
-        test_file.unlink()  # Delete test file
+    # Simple check: Just see if log files exist and are recent
+    if log_file.exists():
+        import time
+        file_age = time.time() - log_file.stat().st_mtime
         
-        # Additional test: Try to write to the actual log file location
-        test_log_file = Path("test_log_write.json")
-        with open(test_log_file, 'w') as f:
-            f.write('{"test": "data"}')
-        test_log_file.unlink()  # Delete test file
-        
-        write_access = True
-    except Exception:
-        write_access = False
-    
-    if not write_access:
-        # Streamlit Cloud or no write access
-        st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
-    elif log_file.exists() and write_access:
-        # Additional check: Test if we can actually write to the log file
-        try:
-            # Try to append to the existing log file
-            with open(log_file, 'r') as f:
-                existing_logs = json.load(f)
-            # Test write access by trying to write back
-            with open(log_file, 'w') as f:
-                json.dump(existing_logs, f, indent=2)
-            actual_write_access = True
-        except Exception:
-            actual_write_access = False
-        
-        if not actual_write_access:
-            st.sidebar.warning("📝 **Logging**: Not Available\n\n⚠️ **Cloud Environment**: File system access restricted\n\n💡 **Local Development**: Logging works in local environment")
+        if file_age > 300:  # 5 minutes - file is old
+            st.sidebar.info("📝 **Logging**: Inactive\n\n⏰ **Last Update**: " + 
+                          f"{int(file_age/60)} minutes ago\n\n💡 **Local Development**: Logging works in local environment")
         else:
-            # Check if file was recently modified (within last 5 minutes) to ensure it's actively being written
-            import time
-            file_age = time.time() - log_file.stat().st_mtime
-            if file_age > 300:  # 5 minutes
-                st.sidebar.info("📝 **Logging**: Inactive\n\n⏰ **Last Update**: " + 
-                              f"{int(file_age/60)} minutes ago\n\n💡 **Local Development**: Logging works in local environment")
-            else:
-                try:
-                    with open(log_file, 'r') as f:
-                        content = f.read().strip()
-                        if content:
-                            logs = json.loads(content)
-                            log_count = len(logs)
-                        else:
-                            log_count = 0
+            try:
+                with open(log_file, 'r') as f:
+                    content = f.read().strip()
+                    if content:
+                        logs = json.loads(content)
+                        log_count = len(logs)
+                    else:
+                        log_count = 0
                     file_size = log_file.stat().st_size / 1024  # Size in KB
                     
                     # Check dedicated untrained states file
@@ -1667,11 +1633,12 @@ def main():
                     
                     st.sidebar.info(status_text)
                     
-                except Exception as e:
-                    st.sidebar.warning(f"⚠️ Error reading log files: {e}")
-                    st.sidebar.info("📝 **Continuous Logging**: Active (file size increasing)")
+            except Exception as e:
+                st.sidebar.warning(f"⚠️ Error reading log files: {e}")
+                st.sidebar.info("📝 **Continuous Logging**: Active (file size increasing)")
     else:
-        st.sidebar.info("📝 **Continuous Logging**: Active\n\nAll inputs, predictions, and actions are continuously logged to `prediction_validation_log.json` for long-term analysis and validation.")
+        # No log file exists - show appropriate message
+        st.sidebar.info("📝 **Logging**: Ready\n\n💡 **Local Development**: Logging will start when system runs\n\n⚠️ **Cloud Environment**: Logging may not be available")
     
     
     # Auto-generate telemetry
