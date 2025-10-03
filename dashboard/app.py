@@ -1342,7 +1342,7 @@ def generate_synthetic_telemetry():
 
 def main():
     # Header
-    st.title("🔋 EV Battery Safety Management System")
+    st.title("🔋AI-Powered EV Battery Safety Management System")
     st.markdown("**Real-time Battery Monitoring, Anomaly Detection & Intelligent Action Recommendation**")
     
     # Initialize BMS
