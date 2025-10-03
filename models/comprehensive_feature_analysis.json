@@ -1,0 +1,945 @@
+[
+  {
+    "feature_name": "c_rate",
+    "importance_rank": 1,
+    "importance_score": 0.12274570312352208,
+    "description": "Charge/discharge rate",
+    "unit": "C-rate (1C = 1 hour discharge)",
+    "physical_meaning": "Current relative to battery capacity",
+    "anomaly_indicator": "High C-rates cause heat generation and degradation",
+    "statistics": {
+      "mean": -0.0014886230890687577,
+      "std": 0.999266541517204,
+      "min": -0.7275094885362055,
+      "max": 6.201949930923727,
+      "range": 6.929459419459933
+    },
+    "percentiles": {
+      "p10": -0.7275094885362055,
+      "p25": -0.7275094885362055,
+      "p50": -0.01211117579159294,
+      "p75": -0.01211117579159294,
+      "p90": 1.3884249417374228,
+      "p95": 2.111734317081365,
+      "p99": 3.9677219895550295
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 1.3884249417374228,
+        "sample_count": "107059",
+        "anomaly_count": "60258",
+        "anomaly_rate": 56.28485227771603
+      },
+      ">95th_percentile": {
+        "threshold_value": 2.111734317081365,
+        "sample_count": "53530",
+        "anomaly_count": "26091",
+        "anomaly_rate": 48.74089295722025
+      },
+      ">99th_percentile": {
+        "threshold_value": 3.9677219895550295,
+        "sample_count": "10706",
+        "anomaly_count": "6857",
+        "anomaly_rate": 64.04819727255745
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">99th_percentile",
+      "value": 3.9677219895550295,
+      "anomaly_rate": 64.04819727255745,
+      "sample_count": "10706"
+    }
+  },
+  {
+    "feature_name": "power",
+    "importance_rank": 2,
+    "importance_score": 0.10888616018802345,
+    "description": "Electrical power",
+    "unit": "Watts (W)",
+    "physical_meaning": "Rate of energy transfer (voltage \u00d7 current)",
+    "anomaly_indicator": "Power spikes indicate electrical system stress",
+    "statistics": {
+      "mean": -0.0014402890039405091,
+      "std": 0.9996091923274595,
+      "min": -0.8180119007395928,
+      "max": 6.376971438693994,
+      "range": 7.194983339433587
+    },
+    "percentiles": {
+      "p10": -0.8049136476607703,
+      "p25": -0.8049136476607703,
+      "p50": 0.015014604897310404,
+      "p75": 0.12259940155327922,
+      "p90": 1.143122301139201,
+      "p95": 2.2596082164842373,
+      "p99": 3.83447104955008
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 1.143122301139201,
+        "sample_count": "107059",
+        "anomaly_count": "61896",
+        "anomaly_rate": 57.81484975574216
+      },
+      ">95th_percentile": {
+        "threshold_value": 2.2596082164842373,
+        "sample_count": "53530",
+        "anomaly_count": "29797",
+        "anomaly_rate": 55.66411358116944
+      },
+      ">99th_percentile": {
+        "threshold_value": 3.83447104955008,
+        "sample_count": "10706",
+        "anomaly_count": "8511",
+        "anomaly_rate": 79.49747804969176
+      },
+      "<1th_percentile": {
+        "threshold_value": -0.8049136476607703,
+        "sample_count": "83",
+        "anomaly_count": "83",
+        "anomaly_rate": 100.0
+      },
+      "<5th_percentile": {
+        "threshold_value": -0.8049136476607703,
+        "sample_count": "83",
+        "anomaly_count": "83",
+        "anomaly_rate": 100.0
+      },
+      "<10th_percentile": {
+        "threshold_value": -0.8049136476607703,
+        "sample_count": "83",
+        "anomaly_count": "83",
+        "anomaly_rate": 100.0
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">99th_percentile",
+      "value": 3.83447104955008,
+      "anomaly_rate": 79.49747804969176,
+      "sample_count": "10706"
+    }
+  },
+  {
+    "feature_name": "current",
+    "importance_rank": 3,
+    "importance_score": 0.10677969073585236,
+    "description": "Battery current flow",
+    "unit": "Amperes (A)",
+    "physical_meaning": "Rate of electrical charge flow (+ charging, - discharging)",
+    "anomaly_indicator": "Excessive current indicates overcharging or internal shorts",
+    "statistics": {
+      "mean": 0.0006105678876900749,
+      "std": 0.9988234899803898,
+      "min": -5.585608817058113,
+      "max": 0.5974666111110246,
+      "range": 6.183075428169138
+    },
+    "percentiles": {
+      "p10": -1.6924836437616069,
+      "p25": 0.018860457297183834,
+      "p50": 0.018860457297183834,
+      "p75": 0.5974666111110246,
+      "p90": 0.5974666111110246,
+      "p95": 0.5974666111110246,
+      "p99": 0.5974666111110246
+    },
+    "thresholds_analysis": {
+      "<1th_percentile": {
+        "threshold_value": -3.778590247306122,
+        "sample_count": "10706",
+        "anomaly_count": "6857",
+        "anomaly_rate": 64.04819727255745
+      },
+      "<5th_percentile": {
+        "threshold_value": -2.2774881765227195,
+        "sample_count": "53530",
+        "anomaly_count": "26091",
+        "anomaly_rate": 48.74089295722025
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.6924836437616069,
+        "sample_count": "107059",
+        "anomaly_count": "60258",
+        "anomaly_rate": 56.28485227771603
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<1th_percentile",
+      "value": -3.778590247306122,
+      "anomaly_rate": 64.04819727255745,
+      "sample_count": "10706"
+    }
+  },
+  {
+    "feature_name": "voltage_gradient",
+    "importance_rank": 4,
+    "importance_score": 0.09004524747686084,
+    "description": "Voltage change rate",
+    "unit": "Volts per time unit",
+    "physical_meaning": "Speed of voltage change over time",
+    "anomaly_indicator": "Rapid voltage changes indicate electrical instability",
+    "statistics": {
+      "mean": 0.000528305104517975,
+      "std": 1.0035475804262384,
+      "min": -113.04083417872042,
+      "max": 149.34440369337852,
+      "range": 262.38523787209897
+    },
+    "percentiles": {
+      "p10": -0.2077281147814551,
+      "p25": -0.012219159071781518,
+      "p50": 0.024438770123781595,
+      "p75": 0.08553531878303897,
+      "p90": 0.10997393824675494,
+      "p95": 0.14663186744230722,
+      "p99": 0.7820359734987165
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.10997393824675494,
+        "sample_count": "97922",
+        "anomaly_count": "14532",
+        "anomaly_rate": 14.840383162108617
+      },
+      ">95th_percentile": {
+        "threshold_value": 0.14663186744230722,
+        "sample_count": "53449",
+        "anomaly_count": "13276",
+        "anomaly_rate": 24.838631218544784
+      },
+      ">99th_percentile": {
+        "threshold_value": 0.7820359734987165,
+        "sample_count": "10625",
+        "anomaly_count": "5781",
+        "anomaly_rate": 54.40941176470589
+      },
+      "<1th_percentile": {
+        "threshold_value": -1.1974922030616049,
+        "sample_count": "10681",
+        "anomaly_count": "7089",
+        "anomaly_rate": 66.37019005711076
+      },
+      "<5th_percentile": {
+        "threshold_value": -0.3177019023681444,
+        "sample_count": "53004",
+        "anomaly_count": "28281",
+        "anomaly_rate": 53.35635046411592
+      },
+      "<10th_percentile": {
+        "threshold_value": -0.2077281147814551,
+        "sample_count": "106802",
+        "anomaly_count": "56677",
+        "anomaly_rate": 53.06735828917062
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<1th_percentile",
+      "value": -1.1974922030616049,
+      "anomaly_rate": 66.37019005711076,
+      "sample_count": "10681"
+    }
+  },
+  {
+    "feature_name": "humidity",
+    "importance_rank": 5,
+    "importance_score": 0.07684051462978177,
+    "description": "Environmental humidity",
+    "unit": "Percentage (0-1)",
+    "physical_meaning": "Moisture content in surrounding air",
+    "anomaly_indicator": "High humidity increases corrosion and short-circuit risk",
+    "statistics": {
+      "mean": 0.0010356067292978588,
+      "std": 0.9992921618037052,
+      "min": -1.9394095587330782,
+      "max": 0.9796762747316122,
+      "range": 2.9190858334646905
+    },
+    "percentiles": {
+      "p10": -1.9394095587330782,
+      "p25": -0.5974455377549035,
+      "p50": 0.3862484684349878,
+      "p75": 0.8467468978755482,
+      "p90": 0.9589476333405897,
+      "p95": 0.9744938911792537,
+      "p99": 0.9794740486173091
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.9589476333405897,
+        "sample_count": "107059",
+        "anomaly_count": "4276",
+        "anomaly_rate": 3.99405935045162
+      },
+      ">95th_percentile": {
+        "threshold_value": 0.9744938911792537,
+        "sample_count": "53530",
+        "anomaly_count": "2161",
+        "anomaly_rate": 4.03698860452083
+      },
+      ">99th_percentile": {
+        "threshold_value": 0.9794740486173091,
+        "sample_count": "10706",
+        "anomaly_count": "407",
+        "anomaly_rate": 3.8016065757519146
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">95th_percentile",
+      "value": 0.9744938911792537,
+      "anomaly_rate": 4.03698860452083,
+      "sample_count": "53530"
+    }
+  },
+  {
+    "feature_name": "ambient_temp",
+    "importance_rank": 6,
+    "importance_score": 0.07628864088357752,
+    "description": "Environmental temperature",
+    "unit": "Celsius (\u00b0C)",
+    "physical_meaning": "External temperature affecting battery performance",
+    "anomaly_indicator": "Extreme ambient conditions stress battery systems",
+    "statistics": {
+      "mean": -0.0026560333396670765,
+      "std": 1.0000507475495701,
+      "min": -1.5828046997873852,
+      "max": 2.001444963644917,
+      "range": 3.5842496634323022
+    },
+    "percentiles": {
+      "p10": -1.1777108518144233,
+      "p25": -0.7169475729429783,
+      "p50": -0.18371551181510587,
+      "p75": 0.444379147501945,
+      "p90": 2.001444963644917,
+      "p95": 2.001444963644917,
+      "p99": 2.001444963644917
+    },
+    "thresholds_analysis": {
+      "<5th_percentile": {
+        "threshold_value": -1.360992488027562,
+        "sample_count": "53530",
+        "anomaly_count": "8138",
+        "anomaly_rate": 15.202690080328788
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.1777108518144233,
+        "sample_count": "107059",
+        "anomaly_count": "14134",
+        "anomaly_rate": 13.20206615044041
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<5th_percentile",
+      "value": -1.360992488027562,
+      "anomaly_rate": 15.202690080328788,
+      "sample_count": "53530"
+    }
+  },
+  {
+    "feature_name": "temperature",
+    "importance_rank": 7,
+    "importance_score": 0.06599961251120703,
+    "description": "Battery core temperature",
+    "unit": "Celsius (\u00b0C)",
+    "physical_meaning": "Internal heat generation from chemical reactions",
+    "anomaly_indicator": "High temperature indicates thermal runaway risk",
+    "statistics": {
+      "mean": -0.002172835490505857,
+      "std": 0.9996940647568386,
+      "min": -10.635839033473744,
+      "max": 6.553920777746832,
+      "range": 17.189759811220576
+    },
+    "percentiles": {
+      "p10": -1.012447025513147,
+      "p25": -0.6154096161876554,
+      "p50": -0.2353649764188931,
+      "p75": 0.18325055297863563,
+      "p90": 1.4261502691280004,
+      "p95": 2.162143981251749,
+      "p99": 3.4804772088196123
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 1.4261502691280004,
+        "sample_count": "107018",
+        "anomaly_count": "9743",
+        "anomaly_rate": 9.104075949840214
+      },
+      ">95th_percentile": {
+        "threshold_value": 2.162143981251749,
+        "sample_count": "53518",
+        "anomaly_count": "6323",
+        "anomaly_rate": 11.814716543966517
+      },
+      ">99th_percentile": {
+        "threshold_value": 3.4804772088196123,
+        "sample_count": "10696",
+        "anomaly_count": "4059",
+        "anomaly_rate": 37.94876589379207
+      },
+      "<1th_percentile": {
+        "threshold_value": -1.1073907538301122,
+        "sample_count": "10626",
+        "anomaly_count": "1131",
+        "anomaly_rate": 10.643704121964992
+      },
+      "<5th_percentile": {
+        "threshold_value": -1.0579408953316929,
+        "sample_count": "53267",
+        "anomaly_count": "4648",
+        "anomaly_rate": 8.725852779394373
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.012447025513147,
+        "sample_count": "107047",
+        "anomaly_count": "10360",
+        "anomaly_rate": 9.677991910095566
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">99th_percentile",
+      "value": 3.4804772088196123,
+      "anomaly_rate": 37.94876589379207,
+      "sample_count": "10696"
+    }
+  },
+  {
+    "feature_name": "voltage",
+    "importance_rank": 8,
+    "importance_score": 0.06373883221042408,
+    "description": "Battery terminal voltage",
+    "unit": "Volts (V)",
+    "physical_meaning": "Electrical potential difference across battery terminals",
+    "anomaly_indicator": "Voltage spikes/drops indicate cell damage or connection issues",
+    "statistics": {
+      "mean": 0.002306901654435017,
+      "std": 0.9990805400786682,
+      "min": -7.950592609079094,
+      "max": 4.847650984504068,
+      "range": 12.798243593583162
+    },
+    "percentiles": {
+      "p10": -1.5092856681888622,
+      "p25": -0.6968310411037423,
+      "p50": 0.36560962508449174,
+      "p75": 0.7624624621606833,
+      "p90": 0.9593264679543873,
+      "p95": 1.0686953600619982,
+      "p99": 1.1468159972817222
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.9593264679543873,
+        "sample_count": "106806",
+        "anomaly_count": "622",
+        "anomaly_rate": 0.5823642866505627
+      },
+      ">95th_percentile": {
+        "threshold_value": 1.0686953600619982,
+        "sample_count": "53301",
+        "anomaly_count": "402",
+        "anomaly_rate": 0.7542072381381213
+      },
+      ">99th_percentile": {
+        "threshold_value": 1.1468159972817222,
+        "sample_count": "10158",
+        "anomaly_count": "256",
+        "anomaly_rate": 2.520181138019295
+      },
+      "<1th_percentile": {
+        "threshold_value": -2.030089916320349,
+        "sample_count": "10687",
+        "anomaly_count": "7087",
+        "anomaly_rate": 66.31421353045756
+      },
+      "<5th_percentile": {
+        "threshold_value": -1.7009416315012507,
+        "sample_count": "53507",
+        "anomaly_count": "12321",
+        "anomaly_rate": 23.026893677462763
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.5092856681888622,
+        "sample_count": "106990",
+        "anomaly_count": "18346",
+        "anomaly_rate": 17.14739695298626
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<1th_percentile",
+      "value": -2.030089916320349,
+      "anomaly_rate": 66.31421353045756,
+      "sample_count": "10687"
+    }
+  },
+  {
+    "feature_name": "charge_mode_encoded",
+    "importance_rank": 9,
+    "importance_score": 0.06006529724122784,
+    "description": "Charging mode type",
+    "unit": "Categorical (0,1,2)",
+    "physical_meaning": "Type of charging: maintain, slow_charge, fast_charge",
+    "anomaly_indicator": "Inappropriate charging mode for current conditions",
+    "statistics": {
+      "mean": -1.30477958990898e-05,
+      "std": 0.9989666510384851,
+      "min": -0.9091157030545641,
+      "max": 1.9082319993889136,
+      "range": 2.817347702443478
+    },
+    "percentiles": {
+      "p10": -0.9091157030545641,
+      "p25": -0.9091157030545641,
+      "p50": 0.4995581481671747,
+      "p75": 0.4995581481671747,
+      "p90": 1.9082319993889136,
+      "p95": 1.9082319993889136,
+      "p99": 1.9082319993889136
+    },
+    "thresholds_analysis": {},
+    "best_anomaly_threshold": null
+  },
+  {
+    "feature_name": "voltage_soc_ratio",
+    "importance_rank": 10,
+    "importance_score": 0.059628117804844304,
+    "description": "Voltage to SoC ratio",
+    "unit": "V per unit SoC",
+    "physical_meaning": "Relationship between voltage and charge state",
+    "anomaly_indicator": "Abnormal ratio indicates cell degradation or calibration issues",
+    "statistics": {
+      "mean": 0.00032114085256539565,
+      "std": 1.009877202545806,
+      "min": -9.182066162373172,
+      "max": 220.5242410438786,
+      "range": 229.70630720625175
+    },
+    "percentiles": {
+      "p10": -0.10439311387545182,
+      "p25": -0.046839676327744995,
+      "p50": 0.02832614479730104,
+      "p75": 0.05632909776545545,
+      "p90": 0.07025688226803761,
+      "p95": 0.07799454032502752,
+      "p99": 0.08352143893716336
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.07025688226803761,
+        "sample_count": "106879",
+        "anomaly_count": "693",
+        "anomaly_rate": 0.6483967851495617
+      },
+      ">95th_percentile": {
+        "threshold_value": 0.07799454032502752,
+        "sample_count": "53374",
+        "anomaly_count": "473",
+        "anomaly_rate": 0.886199273054296
+      },
+      ">99th_percentile": {
+        "threshold_value": 0.08352143893716336,
+        "sample_count": "10231",
+        "anomaly_count": "327",
+        "anomaly_rate": 3.1961685074772745
+      },
+      "<1th_percentile": {
+        "threshold_value": -0.141018028678538,
+        "sample_count": "10701",
+        "anomaly_count": "7042",
+        "anomaly_rate": 65.80693393140828
+      },
+      "<5th_percentile": {
+        "threshold_value": -0.1179524384705583,
+        "sample_count": "53431",
+        "anomaly_count": "12248",
+        "anomaly_rate": 22.92302221556774
+      },
+      "<10th_percentile": {
+        "threshold_value": -0.10439311387545182,
+        "sample_count": "106916",
+        "anomaly_count": "18274",
+        "anomaly_rate": 17.091922630850387
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<1th_percentile",
+      "value": -0.141018028678538,
+      "anomaly_rate": 65.80693393140828,
+      "sample_count": "10701"
+    }
+  },
+  {
+    "feature_name": "env_stress",
+    "importance_rank": 11,
+    "importance_score": 0.05295692431909338,
+    "description": "Environmental stress index",
+    "unit": "Normalized (0-1)",
+    "physical_meaning": "Combined environmental factors (temp, humidity)",
+    "anomaly_indicator": "High environmental stress affects battery performance",
+    "statistics": {
+      "mean": -0.0018552597629214803,
+      "std": 1.0021882772331823,
+      "min": -2.6942639848887517,
+      "max": 1.064428341253234,
+      "range": 3.758692326141986
+    },
+    "percentiles": {
+      "p10": -1.572298204788106,
+      "p25": -0.47505741089620135,
+      "p50": 0.23560598533252378,
+      "p75": 0.899882474450069,
+      "p90": 1.0396497845100467,
+      "p95": 1.058305973450399,
+      "p99": 1.0641908016978108
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 1.0396497845100467,
+        "sample_count": "107059",
+        "anomaly_count": "5053",
+        "anomaly_rate": 4.719827384899915
+      },
+      ">95th_percentile": {
+        "threshold_value": 1.058305973450399,
+        "sample_count": "53530",
+        "anomaly_count": "2572",
+        "anomaly_rate": 4.804782365028956
+      },
+      ">99th_percentile": {
+        "threshold_value": 1.0641908016978108,
+        "sample_count": "10706",
+        "anomaly_count": "506",
+        "anomaly_rate": 4.726321688772651
+      },
+      "<5th_percentile": {
+        "threshold_value": -2.1199458917154335,
+        "sample_count": "53530",
+        "anomaly_count": "8138",
+        "anomaly_rate": 15.202690080328788
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.572298204788106,
+        "sample_count": "107059",
+        "anomaly_count": "14134",
+        "anomaly_rate": 13.20206615044041
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<5th_percentile",
+      "value": -2.1199458917154335,
+      "anomaly_rate": 15.202690080328788,
+      "sample_count": "53530"
+    }
+  },
+  {
+    "feature_name": "temp_gradient",
+    "importance_rank": 12,
+    "importance_score": 0.04407199484084277,
+    "description": "Temperature change rate",
+    "unit": "Celsius per time unit",
+    "physical_meaning": "Speed of temperature change over time",
+    "anomaly_indicator": "Rapid temperature changes indicate thermal instability",
+    "statistics": {
+      "mean": -0.0006823071886367235,
+      "std": 1.0620961207978434,
+      "min": -236.49854448287462,
+      "max": 230.04606755642828,
+      "range": 466.54461203930293
+    },
+    "percentiles": {
+      "p10": -0.5210420198238248,
+      "p25": -0.19198888518809024,
+      "p50": -0.04011820766391604,
+      "p75": 0.054800965788697524,
+      "p90": 0.49986642353315447,
+      "p95": 1.3182806301912098,
+      "p99": 2.7357402870835124
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.49986642353315447,
+        "sample_count": "106938",
+        "anomaly_count": "60737",
+        "anomaly_rate": 56.79646150105668
+      },
+      ">95th_percentile": {
+        "threshold_value": 1.3182806301912098,
+        "sample_count": "53494",
+        "anomaly_count": "32745",
+        "anomaly_rate": 61.21247242681422
+      },
+      ">99th_percentile": {
+        "threshold_value": 2.7357402870835124,
+        "sample_count": "10699",
+        "anomaly_count": "8341",
+        "anomaly_rate": 77.96055706140761
+      },
+      "<1th_percentile": {
+        "threshold_value": -1.7022584005674055,
+        "sample_count": "10700",
+        "anomaly_count": "985",
+        "anomaly_rate": 9.205607476635514
+      },
+      "<5th_percentile": {
+        "threshold_value": -0.8880628238405672,
+        "sample_count": "53455",
+        "anomaly_count": "3910",
+        "anomaly_rate": 7.314563651669628
+      },
+      "<10th_percentile": {
+        "threshold_value": -0.5210420198238248,
+        "sample_count": "107032",
+        "anomaly_count": "9581",
+        "anomaly_rate": 8.951528514836685
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">99th_percentile",
+      "value": 2.7357402870835124,
+      "anomaly_rate": 77.96055706140761,
+      "sample_count": "10699"
+    }
+  },
+  {
+    "feature_name": "thermal_stress",
+    "importance_rank": 13,
+    "importance_score": 0.042696072526620374,
+    "description": "Thermal stress index",
+    "unit": "Normalized (0-1)",
+    "physical_meaning": "Combined temperature and environmental stress factor",
+    "anomaly_indicator": "High thermal stress accelerates battery aging",
+    "statistics": {
+      "mean": 0.0021010890610338668,
+      "std": 0.9991700666782664,
+      "min": -2.4391231996316503,
+      "max": 1.0973612252931633,
+      "range": 3.5364844249248133
+    },
+    "percentiles": {
+      "p10": -1.872224746316203,
+      "p25": -0.24084448109838566,
+      "p50": 0.30907884697742194,
+      "p75": 0.7592733142703514,
+      "p90": 0.9111063789137898,
+      "p95": 1.0028192083335068,
+      "p99": 1.0781463265844051
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.9111063789137898,
+        "sample_count": "106971",
+        "anomaly_count": "8745",
+        "anomaly_rate": 8.175112881061223
+      },
+      ">95th_percentile": {
+        "threshold_value": 1.0028192083335068,
+        "sample_count": "53330",
+        "anomaly_count": "4365",
+        "anomaly_rate": 8.184886555409713
+      },
+      ">99th_percentile": {
+        "threshold_value": 1.0781463265844051,
+        "sample_count": "10603",
+        "anomaly_count": "878",
+        "anomaly_rate": 8.280675280580969
+      },
+      "<10th_percentile": {
+        "threshold_value": -1.872224746316203,
+        "sample_count": "107034",
+        "anomaly_count": "9931",
+        "anomaly_rate": 9.278360147242932
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<10th_percentile",
+      "value": -1.872224746316203,
+      "anomaly_rate": 9.278360147242932,
+      "sample_count": "107034"
+    }
+  },
+  {
+    "feature_name": "temp_diff",
+    "importance_rank": 14,
+    "importance_score": 0.02430154093172258,
+    "description": "Temperature differential",
+    "unit": "Celsius (\u00b0C)",
+    "physical_meaning": "Difference between battery and ambient temperature",
+    "anomaly_indicator": "Large temperature differential indicates poor heat management",
+    "statistics": {
+      "mean": -0.00039975303124124926,
+      "std": 0.9996268863697144,
+      "min": -21.679016289911008,
+      "max": 11.586427513306308,
+      "range": 33.265443803217316
+    },
+    "percentiles": {
+      "p10": -0.7158796624743073,
+      "p25": -0.45640059215651824,
+      "p50": -0.1612202696794238,
+      "p75": 0.1621737378568322,
+      "p90": 0.554393602372977,
+      "p95": 1.5057335945654593,
+      "p99": 4.531778488427869
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 0.554393602372977,
+        "sample_count": "107059",
+        "anomaly_count": "11579",
+        "anomaly_rate": 10.815531622750072
+      },
+      ">95th_percentile": {
+        "threshold_value": 1.5057335945654593,
+        "sample_count": "53526",
+        "anomaly_count": "6327",
+        "anomaly_rate": 11.820423719313979
+      },
+      ">99th_percentile": {
+        "threshold_value": 4.531778488427869,
+        "sample_count": "10696",
+        "anomaly_count": "4059",
+        "anomaly_rate": 37.94876589379207
+      },
+      "<1th_percentile": {
+        "threshold_value": -1.1583332774129715,
+        "sample_count": "10706",
+        "anomaly_count": "1538",
+        "anomaly_rate": 14.365776200261534
+      },
+      "<5th_percentile": {
+        "threshold_value": -0.8704182055549986,
+        "sample_count": "53530",
+        "anomaly_count": "5734",
+        "anomaly_rate": 10.711750420325052
+      },
+      "<10th_percentile": {
+        "threshold_value": -0.7158796624743073,
+        "sample_count": "107059",
+        "anomaly_count": "10669",
+        "anomaly_rate": 9.965533023846664
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": ">99th_percentile",
+      "value": 4.531778488427869,
+      "anomaly_rate": 37.94876589379207,
+      "sample_count": "10696"
+    }
+  },
+  {
+    "feature_name": "soc",
+    "importance_rank": 15,
+    "importance_score": 0.004918267447102475,
+    "description": "State of Charge",
+    "unit": "Percentage (0-1)",
+    "physical_meaning": "Available energy capacity relative to maximum",
+    "anomaly_indicator": "Extreme SoC values indicate charging system issues",
+    "statistics": {
+      "mean": 0.0006297889858508775,
+      "std": 0.9918342767114279,
+      "min": -25.9631303597757,
+      "max": 0.038528154261994206,
+      "range": 26.001658514037693
+    },
+    "percentiles": {
+      "p10": 0.038528154261994206,
+      "p25": 0.038528154261994206,
+      "p50": 0.038528154261994206,
+      "p75": 0.038528154261994206,
+      "p90": 0.038528154261994206,
+      "p95": 0.038528154261994206,
+      "p99": 0.038528154261994206
+    },
+    "thresholds_analysis": {
+      "<1th_percentile": {
+        "threshold_value": 0.038528154261994206,
+        "sample_count": "1562",
+        "anomaly_count": "1559",
+        "anomaly_rate": 99.80793854033291
+      },
+      "<5th_percentile": {
+        "threshold_value": 0.038528154261994206,
+        "sample_count": "1562",
+        "anomaly_count": "1559",
+        "anomaly_rate": 99.80793854033291
+      },
+      "<10th_percentile": {
+        "threshold_value": 0.038528154261994206,
+        "sample_count": "1562",
+        "anomaly_count": "1559",
+        "anomaly_rate": 99.80793854033291
+      }
+    },
+    "best_anomaly_threshold": {
+      "name": "<1th_percentile",
+      "value": 0.038528154261994206,
+      "anomaly_rate": 99.80793854033291,
+      "sample_count": "1562"
+    }
+  },
+  {
+    "feature_name": "soc_rate",
+    "importance_rank": 16,
+    "importance_score": 3.738312929722129e-05,
+    "description": "SoC change rate",
+    "unit": "Percentage per time unit",
+    "physical_meaning": "Speed of charge/discharge process",
+    "anomaly_indicator": "Abnormal SoC rates indicate charging system issues",
+    "statistics": {
+      "mean": -7.798761808702706e-05,
+      "std": 1.0288778789048671,
+      "min": -132.87960646181253,
+      "max": 132.87960646181253,
+      "range": 265.75921292362506
+    },
+    "percentiles": {
+      "p10": 2.7559802844274573e-21,
+      "p25": 2.7559802844274573e-21,
+      "p50": 2.7559802844274573e-21,
+      "p75": 2.7559802844274573e-21,
+      "p90": 2.7559802844274573e-21,
+      "p95": 2.7559802844274573e-21,
+      "p99": 2.7559802844274573e-21
+    },
+    "thresholds_analysis": {
+      ">90th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "32",
+        "anomaly_count": "31",
+        "anomaly_rate": 96.875
+      },
+      ">95th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "32",
+        "anomaly_count": "31",
+        "anomaly_rate": 96.875
+      },
+      ">99th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "32",
+        "anomaly_count": "31",
+        "anomaly_rate": 96.875
+      },
+      "<1th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "38",
+        "anomaly_count": "37",
+        "anomaly_rate": 97.36842105263158
+      },
+      "<5th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "38",
+        "anomaly_count": "37",
+        "anomaly_rate": 97.36842105263158
+      },
+      "<10th_percentile": {
+        "threshold_value": 2.7559802844274573e-21,
+        "sample_count": "38",
+        "anomaly_count": "37",
+        "anomaly_rate": 97.36842105263158
+      }
+    },
+    "best_anomaly_threshold": null
+  }
+]

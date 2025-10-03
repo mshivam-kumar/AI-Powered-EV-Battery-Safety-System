@@ -1,0 +1,10 @@
+{
+  "deployment_status": "ready",
+  "models_available": [
+    "random_forest",
+    "mlp_medium",
+    "rl_agent"
+  ],
+  "fallback_mode": true,
+  "last_updated": "2024-01-01"
+}

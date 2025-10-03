@@ -1,0 +1,20 @@
+{
+  "model_type": "MLP",
+  "model_name": "Small MLP",
+  "architecture": [
+    64,
+    32
+  ],
+  "train_accuracy": 0.9953231308402485,
+  "test_accuracy": 0.995304453903412,
+  "train_f1": 0.9764207809821613,
+  "test_f1": 0.9763278222255708,
+  "test_precision": 0.9800614511935712,
+  "test_recall": 0.9726225324626585,
+  "training_time": 1091.464819908142,
+  "iterations": 47,
+  "final_loss": 0.011795896578404986,
+  "training_samples": 4282352,
+  "test_samples": 1070589,
+  "features_used": 16
+}

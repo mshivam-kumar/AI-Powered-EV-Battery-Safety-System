@@ -198,9 +198,15 @@ class BatteryManagementSystem:
             
             if not rl_loaded:
                 st.warning("⚠️ Could not load any RL Agent - using fallback")
+                # Initialize fallback RL agent
+                self.models['rl_agent'] = None
+                self.models['rl_actions'] = ['fast_charge', 'slow_charge', 'pause', 'discharge', 'maintain']
             
             if not self.models:
                 st.warning("⚠️ No models loaded - using fallback predictions")
+                # Initialize fallback models
+                self.models['random_forest'] = None
+                self.models['mlp_medium'] = None
                     
         except Exception as e:
             st.error(f"Error in model loading process: {e}")
@@ -222,22 +228,28 @@ class BatteryManagementSystem:
         predictions = {}
         
         # Random Forest prediction
-        if 'random_forest' in self.models:
+        if 'random_forest' in self.models and self.models['random_forest'] is not None:
             try:
                 rf_pred = self.models['random_forest'].predict(features)[0]
                 rf_proba = self.models['random_forest'].predict_proba(features)[0, 1]
                 predictions['random_forest'] = {'prediction': rf_pred, 'probability': rf_proba}
             except Exception as e:
                 st.warning(f"⚠️ Random Forest prediction failed: {e}")
+        else:
+            # Fallback: Use safety rules only
+            st.info("ℹ️ Using safety rules fallback (Random Forest not available)")
         
         # MLP prediction
-        if 'mlp_medium' in self.models:
+        if 'mlp_medium' in self.models and self.models['mlp_medium'] is not None:
             try:
                 mlp_pred = self.models['mlp_medium'].predict(features)[0]
                 mlp_proba = self.models['mlp_medium'].predict_proba(features)[0, 1]
                 predictions['mlp_medium'] = {'prediction': mlp_pred, 'probability': mlp_proba}
             except Exception as e:
                 st.warning(f"⚠️ MLP prediction failed: {e}")
+        else:
+            # Fallback: Skip MLP if not available
+            pass
         
         # SAFETY RULES - Override ML when safety is at risk
         temp_std = features[0][2] if len(features[0]) > 2 else 0  # Standardized temperature
@@ -328,7 +340,7 @@ class BatteryManagementSystem:
     
     def get_rl_action(self, telemetry, debug=False):
         """Get RL agent recommended action"""
-        if 'rl_agent' not in self.models:
+        if 'rl_agent' not in self.models or self.models['rl_agent'] is None:
             if debug:
                 st.sidebar.warning("⚠️ RL Agent not loaded - using fallback action")
             return self.get_fallback_action(telemetry)

@@ -1,5 +1,4 @@
 /data
-/models
 /logs
 /results
 /notebooks
@@ -11,3 +10,7 @@
 /temp
 /temp_old_scripts
 /PROJECT_REPORT.md
+
+# Exclude log files (too large for GitHub)
+prediction_validation_log.json
+rl_untrained_states.json

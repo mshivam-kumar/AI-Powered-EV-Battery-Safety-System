@@ -1,0 +1,21 @@
+{
+  "model_type": "MLP",
+  "model_name": "Medium MLP",
+  "architecture": [
+    128,
+    64,
+    32
+  ],
+  "train_accuracy": 0.9954926638445415,
+  "test_accuracy": 0.9953782450594952,
+  "train_f1": 0.9774840771761193,
+  "test_f1": 0.9769177660428057,
+  "test_precision": 0.9714974948970124,
+  "test_recall": 0.9823988591158147,
+  "training_time": 2774.3394396305084,
+  "iterations": 36,
+  "final_loss": 0.011266501235285243,
+  "training_samples": 4282352,
+  "test_samples": 1070589,
+  "features_used": 16
+}

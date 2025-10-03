@@ -1,0 +1,68 @@
+{
+  "random_forest": {
+    "model_name": "Random Forest",
+    "accuracy": 0.9970614306704066,
+    "precision": 0.987985212569316,
+    "recall": 0.9851357578033005,
+    "f1_score": 0.9865584276863918,
+    "auc": 0.9999171049286961,
+    "confusion_matrix": {
+      "tn": 951991,
+      "fp": 1404,
+      "fn": 1742,
+      "tp": 115452
+    }
+  },
+  "mlp_small": {
+    "model_name": "MLP Small",
+    "accuracy": 0.9950195639970147,
+    "precision": 0.97546627675672,
+    "recall": 0.9791286243323037,
+    "f1_score": 0.9772940194525355,
+    "auc": 0.9997897750107522,
+    "confusion_matrix": {
+      "tn": 950509,
+      "fp": 2886,
+      "fn": 2446,
+      "tp": 114748
+    }
+  },
+  "mlp_medium": {
+    "model_name": "MLP Medium",
+    "accuracy": 0.9956818162712301,
+    "precision": 0.9832244438911735,
+    "recall": 0.9772257965424851,
+    "f1_score": 0.9802159427918502,
+    "auc": 0.9998378769927094,
+    "confusion_matrix": {
+      "tn": 951441,
+      "fp": 1954,
+      "fn": 2669,
+      "tp": 114525
+    }
+  },
+  "ensemble_majority_vote": {
+    "model_name": "Ensemble Majority Vote",
+    "accuracy": 0.9964561563774708,
+    "precision": 0.9852873209058697,
+    "recall": 0.9822943154086387,
+    "f1_score": 0.983788541737882,
+    "auc": null
+  },
+  "ensemble_weighted_average": {
+    "model_name": "Ensemble Weighted Average",
+    "accuracy": 0.9966018705591034,
+    "precision": 0.9857802874743327,
+    "recall": 0.9831390685529976,
+    "f1_score": 0.984457906474021,
+    "auc": null
+  },
+  "ensemble_conservative": {
+    "model_name": "Ensemble Conservative",
+    "accuracy": 0.9956593987048251,
+    "precision": 0.9957013116284805,
+    "recall": 0.9645118350768811,
+    "f1_score": 0.9798584412938796,
+    "auc": null
+  }
+}

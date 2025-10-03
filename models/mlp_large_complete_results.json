@@ -1,0 +1,22 @@
+{
+  "model_type": "MLP",
+  "model_name": "Large MLP",
+  "architecture": [
+    256,
+    128,
+    64,
+    32
+  ],
+  "train_accuracy": 0.996140905745254,
+  "test_accuracy": 0.9959106622616148,
+  "train_f1": 0.9807076282266801,
+  "test_f1": 0.9795556219704682,
+  "test_precision": 0.9751204001561948,
+  "test_recall": 0.9840313743150942,
+  "training_time": 16624.868810653687,
+  "iterations": 58,
+  "final_loss": 0.009936547175263693,
+  "training_samples": 4282352,
+  "test_samples": 1070589,
+  "features_used": 16
+}
