@@ -5,8 +5,8 @@ A complete AI-powered battery management system with real-time anomaly detection
 ## 🚀 Features
 
 ### 🧠 AI-Powered Anomaly Detection
-- **Random Forest Model**: 99.7% accuracy, 98.7% F1-score
-- **MLP Neural Network**: 99.6% accuracy, 98.0% F1-score  
+- **Random Forest Model**: 95+% accuracy, 0.95+ F1-score
+- **MLP Neural Network**: 95+% accuracy, 0.95+ F1-score  
 - **Ensemble Prediction**: Robust multi-model approach
 - **Real-time Processing**: Instant anomaly detection
 
@@ -33,10 +33,10 @@ Battery Telemetry → Feature Extraction → AI Models → Action Decision → S
 
 | Model | Accuracy | Precision | Recall | F1-Score | Status |
 |-------|----------|-----------|--------|----------|---------|
-| Random Forest | 99.7% | 98.8% | 98.5% | **98.7%** | ✅ Production Ready |
-| MLP Medium | 99.6% | 98.3% | 97.7% | **98.0%** | ✅ Production Ready |
-| MLP Small | 99.5% | 97.5% | 97.9% | **97.7%** | ✅ Production Ready |
-| Ensemble Weighted | 99.7% | 98.6% | 98.3% | **98.4%** | ✅ Production Ready |
+| Random Forest | 95+% | 95+% | 95+% | **0.95+** | ✅ Production Ready |
+| MLP Medium | 95+% | 95+% | 95+% | **0.95+** | ✅ Production Ready |
+| MLP Small | 95+% | 95+% | 95+% | **0.95+** | ✅ Production Ready |
+| Ensemble Weighted | 95+% | 95+% | 95+% | **95+%** | ✅ Production Ready |
 | RL Safety Agent | - | - | - | **37.5%** Safety | 🔄 Improving |
 
 ## 🚀 Quick Start
