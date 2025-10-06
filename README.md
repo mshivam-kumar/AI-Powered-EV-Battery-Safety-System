@@ -164,8 +164,8 @@ EV-Battery-Safety-System-Clean/
 ## 📊 Performance Metrics
 
 ### Anomaly Detection
-- **True Positive Rate**: 98.5% (catches real anomalies)
-- **False Positive Rate**: 1.2% (minimal false alarms)
+- **True Positive Rate**: 95+% (catches real anomalies)
+- **False Positive Rate**: 1+% (minimal false alarms)
 - **AUC Score**: 100% (perfect discrimination)
 - **Processing Speed**: Real-time (<100ms)
 
@@ -177,7 +177,7 @@ EV-Battery-Safety-System-Clean/
 
 ## 🏆 Achievements
 
-✅ **Production-Ready Anomaly Detection** (99.7% accuracy)  
+✅ **Production-Ready Anomaly Detection** (95+% accuracy)  
 ✅ **Real-time Processing** (<100ms latency)  
 ✅ **Comprehensive Dashboard** (Interactive monitoring)  
 ✅ **Safety-First Design** (Fail-safe mechanisms)  
@@ -189,4 +189,4 @@ EV-Battery-Safety-System-Clean/
 **Built with**: Python, Scikit-learn, Streamlit, Plotly, NumPy, Pandas  
 **Dataset**: NASA Battery Dataset (5.3M+ samples)  
 **Models**: Random Forest + MLP + Q-Learning RL Agent  
-**Performance**: Production-ready with 99.7% accuracy
+**Performance**: Production-ready with 95+% accuracy
